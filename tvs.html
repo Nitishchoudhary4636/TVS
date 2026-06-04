@@ -93,6 +93,44 @@
     return null;
   }
 
+  /** Confirmed Test Ride — profile attributes (clear testDrive* names) */
+  window.setTVSConfirmedTestDrive = function (payload) {
+    if (!payload || !payload.bikeName) return;
+    window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
+    window.TVS_USER_PROFILE.confirmedTestDriveBike = payload.bikeName;
+    window.TVS_USER_PROFILE.testDriveCustomerName = payload.fullName || "";
+    window.TVS_USER_PROFILE.testDrivePhone = payload.phone || "";
+    window.TVS_USER_PROFILE.testDriveEmail = payload.email || "";
+    window.TVS_USER_PROFILE.testDriveCity = payload.city || "";
+    window.TVS_USER_PROFILE.testDrivePincode = payload.pincode || "";
+    window.TVS_USER_PROFILE.testDrivePreferredDate = payload.preferredDate || "";
+    window.TVS_USER_PROFILE.testDriveNotes = payload.message || "";
+    try {
+      localStorage.setItem("tvs_confirmedTestDriveBike", payload.bikeName);
+    } catch (e) { /* private mode */ }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "confirmed_test_drive",
+      user: {
+        identities: { emailAddress: payload.email || "" },
+        attributes: {
+          confirmedTestDriveBike: payload.bikeName,
+          testDriveCustomerName: payload.fullName || "",
+          testDrivePhone: payload.phone || "",
+          testDriveEmail: payload.email || "",
+          testDriveCity: payload.city || "",
+          testDrivePincode: payload.pincode || "",
+          testDrivePreferredDate: payload.preferredDate || "",
+          testDriveNotes: payload.message || ""
+        }
+      },
+      MCP: {
+        pageType: "TestRide",
+        confirmedTestDriveBike: payload.bikeName
+      }
+    });
+  };
+
   /** Confirmed Book Now — stores which bike was booked (single user attribute) */
   window.setTVSUserBookedBike = function (bikeName) {
     if (!bikeName) return;
@@ -1440,9 +1478,10 @@
   function openTestRideModal(vehicle) {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: 'test_ride_form_open',
+      event: 'test_drive_form_open',
       MCP: {
         pageType: 'TestRide',
+        testDriveSelectedBike: vehicle.name,
         currency: window.TVS_VEHICLE_CATALOG.currency,
         Item: { id: (findCatalogVehicle(vehicle.name) || {}).id || '', name: vehicle.name }
       }
@@ -1514,18 +1553,30 @@
     };
     window.TVS_TEST_RIDE_LEADS = window.TVS_TEST_RIDE_LEADS || [];
     window.TVS_TEST_RIDE_LEADS.push(Object.assign({ submittedAt: new Date().toISOString() }, payload));
+    window.setTVSConfirmedTestDrive({
+      bikeName: payload.vehicle,
+      fullName: payload.fullName,
+      email: payload.email,
+      phone: payload.phone,
+      city: payload.city,
+      pincode: payload.pincode,
+      preferredDate: payload.preferredDate,
+      message: payload.message
+    });
     pushBookingEvent('test_ride_booked', { name: payload.vehicle, price: '' }, {
       bookingType: 'Test Ride',
+      confirmedTestDriveBike: payload.vehicle,
       user: {
         identities: { emailAddress: payload.email },
         attributes: {
-          firstName: payload.fullName,
-          phone: payload.phone,
-          city: payload.city,
-          postalCode: payload.pincode,
-          preferredDate: payload.preferredDate,
-          vehicle: payload.vehicle,
-          notes: payload.message
+          confirmedTestDriveBike: payload.vehicle,
+          testDriveCustomerName: payload.fullName,
+          testDrivePhone: payload.phone,
+          testDriveEmail: payload.email,
+          testDriveCity: payload.city,
+          testDrivePincode: payload.pincode,
+          testDrivePreferredDate: payload.preferredDate,
+          testDriveNotes: payload.message
         }
       }
     });

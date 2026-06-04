@@ -135,31 +135,45 @@ console.log("Styler Sitemap — Resilient Version06 (TVS)");
 
     function sendTestRideBookedEvent() {
         const email = SalesforceInteractions.cashDom("#trEmail").val().trim();
-        const firstName = SalesforceInteractions.cashDom("#trName").val().trim();
+        const fullName = SalesforceInteractions.cashDom("#trName").val().trim();
         const phone = SalesforceInteractions.cashDom("#trPhone").val().trim();
         const city = SalesforceInteractions.cashDom("#trCity").val();
         const pincode = SalesforceInteractions.cashDom("#trPincode").val().trim();
         const preferredDate = SalesforceInteractions.cashDom("#trDate").val();
-        const vehicle = SalesforceInteractions.cashDom("#testRideVehicleInput").val();
+        const bikeName = SalesforceInteractions.cashDom("#testRideVehicleInput").val();
         const message = SalesforceInteractions.cashDom("#trMessage").val().trim();
-        const catalogItem = findCatalogVehicle(vehicle);
+        const catalogItem = findCatalogVehicle(bikeName);
 
         if (!email) return;
+
+        const payload = {
+            bikeName: bikeName,
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            city: city,
+            pincode: pincode,
+            preferredDate: preferredDate,
+            message: message
+        };
+
+        if (typeof window.setTVSConfirmedTestDrive === "function") {
+            window.setTVSConfirmedTestDrive(payload);
+        }
 
         SalesforceInteractions.sendEvent({
             interaction: { name: "Test Ride Booked" },
             user: {
                 identities: { emailAddress: email },
                 attributes: {
-                    firstName: firstName || "",
-                    phone: phone || "",
-                    city: city || "",
-                    stateProvince: "",
-                    postalCode: pincode || "",
-                    preferredDate: preferredDate || "",
-                    vehicle: vehicle || "",
-                    notes: message || "",
-                    marketingOptIn: false
+                    confirmedTestDriveBike: bikeName || "",
+                    testDriveCustomerName: fullName || "",
+                    testDrivePhone: phone || "",
+                    testDriveEmail: email || "",
+                    testDriveCity: city || "",
+                    testDrivePincode: pincode || "",
+                    testDrivePreferredDate: preferredDate || "",
+                    testDriveNotes: message || ""
                 }
             },
             catalogObject: catalogItem ? {
@@ -274,7 +288,7 @@ console.log("Styler Sitemap — Resilient Version06 (TVS)");
                                 || vehicleNameFromCard(SalesforceInteractions.cashDom(event.target).closest(".vehicle-card"));
                             SalesforceInteractions.sendEvent({
                                 interaction: { name: "Test Ride Form Opened" },
-                                user: { attributes: { vehicle: vehicle || "" } }
+                                user: { attributes: { testDriveSelectedBike: vehicle || "" } }
                             });
                         }),
                         SalesforceInteractions.listener("submit", "#testRideForm", function () {
