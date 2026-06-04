@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://*.evergage.com https://*.evgnet.com https://*.salesforce.com https://*.site.com https://*.force.com https://shoptvsmotor.vercel.app"
+        }
+      ]
+    }
+  ]
+}
