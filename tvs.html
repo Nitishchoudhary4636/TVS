@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Two Wheeler In India - Bike, Scooter, Motorcycle | TVS Motor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --tvs-blue: #004A8F;
+    --tvs-red: #E31E24;
+    --tvs-dark: #1a1a1a;
+    --tvs-gray: #f5f5f5;
+    --tvs-border: #e0e0e0;
+    --text-dark: #222;
+    --text-gray: #666;
+  }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text-dark); background: #fff; }
+
+  /* ===== HEADER ===== */
+  .main-header {
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+    background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .header-container {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 60px; max-width: 1400px; margin: 0 auto;
+  }
+  .main-logo img { height: 28px; }
+  .main-nav { display: flex; align-items: center; gap: 24px; }
+  .nav-item { position: relative; }
+  .nav-item > a {
+    font-size: 14px; font-weight: 600; color: var(--text-dark);
+    text-decoration: none; padding: 20px 4px; display: flex; align-items: center; gap: 4px;
+    border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-item > a:hover { color: var(--tvs-blue); border-bottom-color: var(--tvs-blue); }
+  .nav-item > a .arrow { font-size: 10px; }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-cta {
+    font-size: 12px; font-weight: 600; color: var(--tvs-blue);
+    text-decoration: none; display: flex; align-items: center; gap: 4px;
+    padding: 6px 10px; border: 1.5px solid var(--tvs-blue); border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-cta:hover { background: var(--tvs-blue); color: #fff; }
+  .nav-icon { font-size: 18px; color: var(--text-gray); cursor: pointer; text-decoration: none; }
+  .country-flag { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: var(--text-dark); }
+  .country-flag span { font-size: 18px; }
+
+  /* ===== HERO BANNER ===== */
+  .hero-section { margin-top: 60px; position: relative; overflow: hidden; background: #f0f4f8; }
+  .hero-slider { position: relative; width: 100%; }
+  .hero-slide {
+    display: none; width: 100%; position: relative;
+    background: linear-gradient(135deg, #e8f0fe 0%, #f5f5f5 100%);
+  }
+  .hero-slide.active { display: block; }
+  .hero-slide img { width: 100%; height: 500px; object-fit: cover; display: block; }
+  .hero-slide-placeholder {
+    width: 100%; height: 500px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-jupiter {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 40%, #c8dff0 100%);
+  }
+  .hero-bg-rtx {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 40%, #16213e 100%);
+  }
+  .hero-bg-ronin {
+    background: linear-gradient(135deg, #2c1810 0%, #5c3320 40%, #8b4513 100%);
+  }
+  .hero-bike-img {
+    position: absolute; right: 10%; bottom: 0; height: 380px; object-fit: contain;
+  }
+  .hero-text {
+    position: absolute; left: 8%; top: 50%; transform: translateY(-50%);
+    z-index: 2;
+  }
+  .hero-text h1 { font-size: 48px; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 12px; }
+  .hero-text p { font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 24px; }
+  .hero-btn {
+    display: inline-block; padding: 12px 28px;
+    background: var(--tvs-red); color: #fff;
+    border-radius: 4px; font-weight: 700; font-size: 14px;
+    text-decoration: none; transition: background 0.2s;
+  }
+  .hero-btn:hover { background: #c01018; }
+  .hero-controls {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10;
+  }
+  .hero-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5);
+    cursor: pointer; transition: background 0.2s, transform 0.2s;
+  }
+  .hero-dot.active { background: #fff; transform: scale(1.3); }
+  .hero-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+    width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; z-index: 10; transition: background 0.2s;
+  }
+  .hero-arrow:hover { background: rgba(255,255,255,0.6); color: #000; }
+  .hero-arrow.prev { left: 16px; }
+  .hero-arrow.next { right: 16px; }
+
+  /* Cookie banner */
+  .cookie-banner {
+    background: #fff; border-top: 1px solid var(--tvs-border);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--text-gray);
+    position: relative; z-index: 50;
+  }
+  .cookie-btn {
+    background: var(--tvs-blue); color: #fff; border: none;
+    padding: 6px 16px; border-radius: 4px; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; margin-left: 16px;
+  }
+  .cookie-banner a { color: var(--tvs-blue); }
+
+  /* ===== DISCOVER VEHICLES ===== */
+  .discover-section { padding: 48px 0 32px; background: #fff; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; margin-bottom: 24px;
+  }
+  .section-title { }
+  .section-title .pre { font-size: 13px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
+  .section-title h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 4px 0; }
+  .section-title span { font-size: 14px; color: var(--tvs-blue); font-weight: 600; }
+  .slider-controls { display: flex; gap: 10px; }
+  .slider-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--tvs-border); background: #fff;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .slider-btn:hover { background: var(--tvs-blue); border-color: var(--tvs-blue); color: #fff; }
+
+  .vehicle-tabs { padding: 0 40px; }
+  .tabs-nav { display: flex; gap: 0; border-bottom: 2px solid var(--tvs-border); margin-bottom: 28px; align-items: center; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--text-gray);
+    border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active { color: var(--tvs-blue); border-bottom-color: var(--tvs-blue); }
+  .tab-btn:hover { color: var(--tvs-blue); }
+  .state-select {
+    margin-left: auto; padding: 6px 12px; border: 1px solid var(--tvs-border);
+    border-radius: 4px; font-size: 13px; color: var(--text-dark); background: #fff;
+  }
+
+  .vehicle-cards { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 16px; }
+  .vehicle-cards::-webkit-scrollbar { height: 4px; }
+  .vehicle-cards::-webkit-scrollbar-track { background: #f1f1f1; }
+  .vehicle-cards::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+  .vehicle-card {
+    min-width: 240px; max-width: 260px; flex-shrink: 0;
+    border: 1px solid var(--tvs-border); border-radius: 8px; padding: 20px 16px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    background: #fff;
+  }
+  .vehicle-card:hover { box-shadow: 0 8px 24px rgba(0,74,143,0.12); transform: translateY(-2px); }
+  .vehicle-card-logo { height: 32px; margin-bottom: 12px; }
+  .vehicle-card-logo img { height: 100%; object-fit: contain; }
+  .vehicle-card-img { height: 130px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .vehicle-card-img img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+  /* Bike silhouette SVG placeholders */
+  .bike-placeholder { width: 200px; height: 120px; }
+
+  .vehicle-card h3 { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; text-align: center; }
+  .vehicle-specs { display: flex; gap: 8px; margin-bottom: 12px; justify-content: space-between; }
+  .spec-item { text-align: center; flex: 1; }
+  .spec-label { font-size: 10px; color: var(--text-gray); display: block; margin-bottom: 2px; }
+  .spec-value { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+  .vehicle-price { text-align: center; margin-bottom: 14px; }
+  .price-from { font-size: 11px; color: var(--text-gray); }
+  .price-amount { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+  .vehicle-cta { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; padding: 8px 12px; border: 1.5px solid var(--tvs-blue);
+    color: var(--tvs-blue); border-radius: 4px; font-size: 12px; font-weight: 700;
+    cursor: pointer; background: none; text-align: center; text-decoration: none;
+    transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-outline:hover { background: var(--tvs-blue); color: #fff; }
+  .btn-primary-sm {
+    flex: 1; padding: 8px 12px; background: var(--tvs-blue);
+    color: #fff; border: none; border-radius: 4px; font-size: 12px; font-weight: 700;
+    cursor: pointer; text-align: center; text-decoration: none;
+    transition: background 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-primary-sm:hover { background: #003a72; }
+
+  .view-all-wrap { text-align: center; padding: 24px 0 0; }
+  .view-all-link {
+    font-size: 14px; font-weight: 700; color: var(--tvs-blue);
+    text-decoration: none; border-bottom: 1.5px solid var(--tvs-blue);
+    padding-bottom: 2px;
+  }
+
+  /* ===== OUR STORIES ===== */
+  .stories-section { background: #0a0a0a; padding: 48px 40px; }
+  .stories-header { margin-bottom: 28px; }
+  .stories-header .pre { font-size: 13px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+  .stories-header h2 { font-size: 32px; font-weight: 800; color: #fff; margin: 6px 0; }
+  .stories-grid { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; }
+  .story-card { min-width: 160px; max-width: 180px; flex-shrink: 0; cursor: pointer; position: relative; border-radius: 8px; overflow: hidden; }
+  .story-card img { width: 100%; height: 260px; object-fit: cover; display: block; transition: transform 0.3s; }
+  .story-card:hover img { transform: scale(1.05); }
+  .story-card .play-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 40px; height: 40px; background: rgba(255,255,255,0.85);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--tvs-blue);
+  }
+  .story-text { padding: 8px; position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 24px 8px 10px; }
+  .story-text h4 { font-size: 11px; font-weight: 800; color: #fff; }
+  .story-text p { font-size: 10px; color: rgba(255,255,255,0.75); }
+
+  /* Story placeholder */
+  .story-placeholder { width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; }
+
+  /* ===== DEALERS ===== */
+  .dealers-section { background: #fff; padding: 48px 40px; }
+  .dealers-inner { max-width: 1200px; margin: 0 auto; }
+  .dealers-header { margin-bottom: 24px; }
+  .dealers-header .pre { font-size: 13px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
+  .dealers-header h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 4px 0 12px; }
+  .dealers-header p { font-size: 14px; color: var(--text-gray); max-width: 500px; line-height: 1.6; }
+  .find-dealer-btn {
+    display: inline-block; padding: 12px 28px; background: var(--tvs-blue);
+    color: #fff; border-radius: 4px; font-weight: 700; font-size: 14px;
+    text-decoration: none; transition: background 0.2s; margin-top: 16px;
+  }
+  .find-dealer-btn:hover { background: #003a72; }
+  .dealer-types { display: flex; gap: 16px; margin: 28px 0; flex-wrap: wrap; }
+  .dealer-type-card {
+    flex: 1; min-width: 160px; border-radius: 8px; overflow: hidden;
+    position: relative; cursor: pointer;
+  }
+  .dealer-type-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .dealer-type-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.75));
+    padding: 20px 12px 10px; color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dealer-type-placeholder { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+
+  .become-dealer {
+    background: #f5f8fb; border-radius: 8px; padding: 28px; display: flex;
+    gap: 24px; align-items: center; margin-top: 24px; flex-wrap: wrap;
+  }
+  .become-dealer-text h3 { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
+  .become-dealer-text p { font-size: 13px; color: var(--text-gray); line-height: 1.7; max-width: 560px; }
+
+  /* ===== RACING ===== */
+  .racing-section {
+    background: #000; position: relative; overflow: hidden;
+    min-height: 400px; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 60px 40px;
+  }
+  .racing-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, #000 0%, #0a1628 40%, #000 100%);
+  }
+  .racing-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,74,143,0.3) 0%, transparent 70%);
+  }
+  .racing-content { position: relative; z-index: 2; }
+  .racing-logo { height: 60px; margin-bottom: 20px; }
+  .racing-content h2 { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 24px; }
+  .racing-btn {
+    display: inline-block; padding: 12px 32px; background: var(--tvs-blue);
+    color: #fff; border-radius: 4px; font-weight: 700; font-size: 14px;
+    text-decoration: none; transition: background 0.2s;
+  }
+  .racing-btn:hover { background: #003a72; }
+
+  /* ===== ACHIEVEMENTS ===== */
+  .achievements-section { background: #f9f9f9; padding: 48px 40px; }
+  .achievements-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; }
+  .achievements-header .pre { font-size: 13px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
+  .achievements-header h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 4px 0; }
+  .explore-link { font-size: 14px; color: var(--tvs-blue); font-weight: 600; text-decoration: none; }
+  .achievements-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+  .achievement-card {
+    flex: 1; min-width: 240px; background: #fff; border-radius: 8px;
+    padding: 24px; display: flex; gap: 16px; align-items: flex-start;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .achievement-icon { font-size: 48px; flex-shrink: 0; }
+  .achievement-card h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+  .achievement-card p { font-size: 13px; color: var(--text-gray); line-height: 1.6; }
+
+  /* ===== ABOUT US ===== */
+  .about-section { background: #fff; padding: 48px 40px; }
+  .about-inner { max-width: 1200px; margin: 0 auto; }
+  .about-header { margin-bottom: 28px; }
+  .about-header .pre { font-size: 13px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
+  .about-header h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 4px 0 12px; }
+  .about-header p { font-size: 14px; color: var(--text-gray); line-height: 1.7; max-width: 680px; }
+  .about-cards { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 28px; }
+  .about-card {
+    flex: 1; min-width: 200px; background: var(--tvs-blue);
+    border-radius: 8px; padding: 28px 20px; color: #fff;
+  }
+  .about-card:nth-child(2) { background: #0057a8; }
+  .about-card:nth-child(3) { background: #003f80; }
+  .about-card:nth-child(4) { background: #002d5a; }
+  .about-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
+  .about-card p { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+
+  /* ===== FOOTER ===== */
+  footer { background: #fff; border-top: 1px solid var(--tvs-border); }
+  .footer-top { padding: 48px 40px; }
+  .footer-logo { margin-bottom: 32px; }
+  .footer-logo img { height: 32px; }
+  .footer-links { display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px; }
+  .footer-col h4 {
+    font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;
+    text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 8px; }
+  .footer-col ul li a { font-size: 12px; color: var(--text-gray); text-decoration: none; }
+  .footer-col ul li a:hover { color: var(--tvs-blue); }
+  .footer-app h4 { font-size: 11px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .app-btns { display: flex; gap: 8px; margin-bottom: 20px; }
+  .app-btn { font-size: 11px; padding: 6px 10px; border: 1px solid var(--tvs-border); border-radius: 4px; color: var(--text-dark); text-decoration: none; }
+
+  .footer-bottom { background: #f8f8f8; padding: 20px 40px; }
+  .footer-bottom-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+  .footer-contact h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+  .contact-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .contact-row a { font-size: 13px; color: var(--tvs-blue); text-decoration: none; font-weight: 600; }
+  .contact-icon { font-size: 16px; color: var(--tvs-blue); }
+  .footer-social { display: flex; gap: 12px; margin-top: 16px; }
+  .social-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--tvs-blue); display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; text-decoration: none; transition: background 0.2s;
+  }
+  .social-icon:hover { background: #003a72; }
+  .footer-copy { font-size: 12px; color: var(--text-gray); margin-top: 12px; }
+  .footer-copy-links { display: flex; gap: 16px; margin-top: 6px; }
+  .footer-copy-links a { font-size: 12px; color: var(--text-gray); text-decoration: none; }
+  .footer-copy-links a:hover { color: var(--tvs-blue); }
+
+  /* Tab panes */
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header-container { padding: 0 12px; }
+    .main-nav { display: none; }
+    .hero-text h1 { font-size: 28px; }
+    .hero-slide-placeholder { height: 320px; }
+    .hero-bike-img { height: 220px; right: 0; }
+    .section-header { padding: 0 16px; }
+    .vehicle-tabs { padding: 0 16px; }
+    .footer-links { grid-template-columns: repeat(2, 1fr); }
+    .about-cards { flex-direction: column; }
+    .achievements-grid { flex-direction: column; }
+    .dealer-types { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="main-header">
+  <div class="header-container">
+    <div class="main-logo">
+      <a href="#">
+        <svg width="120" height="28" viewBox="0 0 120 28" fill="none">
+          <text x="0" y="22" font-family="Arial" font-size="22" font-weight="900" fill="#004A8F">TVS</text>
+          <path d="M52 6 L54 6 L68 22 L66 22 Z" fill="#E31E24"/>
+          <text x="72" y="22" font-family="Arial" font-size="13" font-weight="700" fill="#333">Motor</text>
+        </svg>
+      </a>
+    </div>
+    <nav class="main-nav">
+      <div class="nav-item"><a href="#">Products <span class="arrow">▾</span></a></div>
+      <div class="nav-item"><a href="#">Services</a></div>
+      <div class="nav-item"><a href="#">Shop <span class="arrow">▾</span></a></div>
+      <div class="nav-item"><a href="#">Company <span class="arrow">▾</span></a></div>
+    </nav>
+    <div class="nav-right">
+      <a href="#" class="nav-cta">🛒 Buy Vehicle</a>
+      <a href="#" class="nav-cta">🏍 Test Ride</a>
+      <a href="#" class="nav-cta">📍 Dealers</a>
+      <div class="country-flag"><span>🇮🇳</span> India ▾</div>
+      <a href="#" class="nav-icon">🔍</a>
+      <a href="#" class="nav-icon">👤</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO BANNER ===== -->
+<section class="hero-section">
+  <div class="hero-slider" id="heroSlider">
+
+    <!-- Slide 1 - Jupiter 125 -->
+    <!-- Slide 1 - Apache RTR 160 -->
+<div class="hero-slide active">
+  <img
+    src="https://www.tvsmotor.com/-/media/HomeOptimizedImages/TVS-Home-Page-WebP/Desktop/ApacheRTR1604v1905-X-837_020426.webp"
+    alt="TVS Apache RTR 160"
+  />
+</div>
+
+    <!-- Slide 2 - Apache RTX -->
+    <div class="hero-slide">
+      <div class="hero-slide-placeholder hero-bg-rtx">
+        <img
+    src="https://www.tvsmotor.com/-/media/HomeOptimizedImages/TVS-Home-Page-WebP/Desktop/Orbiter_1905837.webp"
+    alt="TVS Apache RTR 160"
+  />
+      </div>
+    </div>
+
+    <!-- Slide 3 - TVS Ronin -->
+    <div class="hero-slide">
+      <div class="hero-slide-placeholder hero-bg-ronin">
+        https://www.tvsmotor.com/-/media/Brand-Pages/Apache/Apache-RR310/19-05-26/TVS-Apache-RR-310-Website-Adapts_Desktop-1905x837.webp
+       
+      </div>
+    </div>
+
+    <button class="hero-arrow prev" onclick="changeSlide(-1)">&#8249;</button>
+    <button class="hero-arrow next" onclick="changeSlide(1)">&#8250;</button>
+    <div class="hero-controls" id="heroDots">
+      <div class="hero-dot active" onclick="goToSlide(0)"></div>
+      <div class="hero-dot" onclick="goToSlide(1)"></div>
+      <div class="hero-dot" onclick="goToSlide(2)"></div>
+    </div>
+  </div>
+
+  <!-- Cookie banner -->
+  <div class="cookie-banner" id="cookieBanner">
+    <p>TVS Motor Company uses cookies, including third-party cookies, to enhance your website experience. By continuing to use the site, you accept our cookie policy. Learn more <a href="#">here.</a></p>
+    <button class="cookie-btn" onclick="document.getElementById('cookieBanner').style.display='none'">I Understand</button>
+  </div>
+</section>
+
+<!-- ===== DISCOVER VEHICLES ===== -->
+<section class="discover-section">
+  <div class="section-header">
+    <div class="section-title">
+      <div class="pre">Discover Your Ride</div>
+      <h2>Vehicles</h2>
+    </div>
+    <div class="slider-controls">
+      <button class="slider-btn">&#8249;</button>
+      <button class="slider-btn">&#8250;</button>
+    </div>
+  </div>
+
+  <div class="vehicle-tabs">
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab(this,'motorcycles')">Motorcycles</button>
+      <button class="tab-btn" onclick="switchTab(this,'scooters')">Scooters</button>
+      <button class="tab-btn" onclick="switchTab(this,'electric')">Electric</button>
+      <button class="tab-btn" onclick="switchTab(this,'mopeds')">Mopeds</button>
+      <button class="tab-btn" onclick="switchTab(this,'threewheelers')">Three Wheelers</button>
+      <select class="state-select"><option>Delhi</option><option>Rajasthan</option><option>Maharashtra</option><option>Karnataka</option><option>Tamil Nadu</option></select>
+    </div>
+
+    <!-- Motorcycles -->
+    <div class="tab-pane active" id="tab-motorcycles">
+      <div class="vehicle-cards">
+
+        <!-- Apache RTX -->
+        <div class="vehicle-card">
+          <div class="vehicle-card-logo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 32'%3E%3Ctext y='24' font-family='Arial' font-size='14' font-weight='900' fill='%23004A8F'%3EApache RTX%3C/text%3E%3C/svg%3E" alt="Apache RTX"></div>
+          <div class="vehicle-card-img">
+             <img src="https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/Apache-RTX-PLP.webp" alt="Apache RTX">
+
+          </div>
+          <h3>Apache RTX</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">299.1 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">36 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">180 Kg</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,99,000/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+
+        <!-- Apache RR 310 -->
+        <div class="vehicle-card">
+          <div class="vehicle-card-logo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 32'%3E%3Ctext y='24' font-family='Arial' font-size='13' font-weight='900' fill='%23004A8F'%3EApache RR 310%3C/text%3E%3C/svg%3E" alt="Apache RR 310"></div>
+          <div class="vehicle-card-img">
+            <img src="https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/09-03-26/RR-310.webp" alt="Apache RR 310">
+          </div>
+          <h3>Apache RR 310</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">312.12 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">38 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">174 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,62,240/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+
+        <!-- Apache RTR 310 -->
+        <div class="vehicle-card">
+          <div class="vehicle-card-logo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 32'%3E%3Ctext y='24' font-family='Arial' font-size='12' font-weight='900' fill='%23004A8F'%3EApache RTR 310%3C/text%3E%3C/svg%3E" alt="Apache RTR 310"></div>
+          <div class="vehicle-card-img">
+            <img src="https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/09-03-26/RTR-310.webp" alt="Apache RTR 310">
+          </div>
+          <h3>Apache RTR 310</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">312.12 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">35.6 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">169 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,25,240/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+
+        <!-- TVS Ronin -->
+        <div class="vehicle-card">
+          <div class="vehicle-card-logo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 32'%3E%3Ctext y='24' font-family='Arial' font-size='14' font-weight='900' fill='%23333'%3ETVS Ronin%3C/text%3E%3C/svg%3E" alt="TVS Ronin"></div>
+          <div class="vehicle-card-img">
+            <img src="https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/15-05-25/TVS-Ronin.webp" alt="TVS Ronin">
+          </div>
+          <h3>TVS Ronin</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">225.9 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">20.4 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">160 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,28,690/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+
+        <!-- TVS Raider -->
+        <div class="vehicle-card">
+          <div class="vehicle-card-logo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 32'%3E%3Ctext y='24' font-family='Arial' font-size='14' font-weight='900' fill='%23333'%3ETVS Raider%3C/text%3E%3C/svg%3E" alt="TVS Raider"></div>
+          <div class="vehicle-card-img">
+            <img src="https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/15-05-25/TVS-Raider.webp" alt="TVS Raider">
+          </div>
+          <h3>TVS Raider</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">124.8 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">11.38 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">123 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 82,860/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="view-all-wrap">
+        <a href="#" class="view-all-link">View All Motorcycles →</a>
+      </div>
+    </div>
+
+    <!-- Scooters -->
+    <div class="tab-pane" id="tab-scooters">
+      <div class="vehicle-cards">
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M50 78 Q68 45 110 38 L165 38 Q190 42 192 68 L190 80 L50 80 Z" fill="#1a3a6c" stroke="#0f2a52" stroke-width="1.5"/>
+              <circle cx="72" cy="86" r="20" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="72" cy="86" r="10" fill="#444"/>
+              <circle cx="168" cy="86" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="168" cy="86" r="11" fill="#444"/>
+              <path d="M110 38 L114 18 L140 16 L144 38" fill="#0f2a52"/>
+            </svg>
+          </div>
+          <h3>TVS Ntorq 150</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">149.7 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">13.1 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">115 kg</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,11,350/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M50 76 Q65 44 108 36 L162 36 Q188 40 190 66 L188 78 L50 78 Z" fill="#e31e24" stroke="#b01018" stroke-width="1.5"/>
+              <circle cx="70" cy="84" r="20" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="70" cy="84" r="10" fill="#444"/>
+              <circle cx="165" cy="84" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="165" cy="84" r="11" fill="#444"/>
+              <path d="M108 36 L112 16 L138 14 L142 36" fill="#b01018"/>
+            </svg>
+          </div>
+          <h3>TVS Ntorq 125</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">124.8 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">10.2 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">110 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 81,750/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M48 76 Q62 44 105 36 L160 36 Q186 40 188 66 L186 78 L48 78 Z" fill="#2980b9" stroke="#1a5f8a" stroke-width="1.5"/>
+              <circle cx="68" cy="84" r="20" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="68" cy="84" r="10" fill="#444"/>
+              <circle cx="163" cy="84" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="163" cy="84" r="11" fill="#444"/>
+              <path d="M105 36 L110 16 L136 14 L140 36" fill="#1a5f8a"/>
+            </svg>
+          </div>
+          <h3>TVS Jupiter</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">113.3 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">8 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">106 Kg</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 73,550/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Electric -->
+    <div class="tab-pane" id="tab-electric">
+      <div class="vehicle-cards">
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M48 76 Q63 44 106 36 L160 36 Q185 40 187 66 L185 78 L48 78 Z" fill="#00aa55" stroke="#007a3d" stroke-width="1.5"/>
+              <circle cx="68" cy="84" r="20" fill="#111" stroke="#00aa55" stroke-width="2.5"/><circle cx="68" cy="84" r="10" fill="#333"/>
+              <circle cx="162" cy="84" r="21" fill="#111" stroke="#00aa55" stroke-width="2.5"/><circle cx="162" cy="84" r="11" fill="#333"/>
+              <path d="M106 36 L110 16 L136 14 L140 36" fill="#007a3d"/>
+              <text x="105" y="62" font-family="Arial" font-size="14" font-weight="900" fill="#fff">⚡</text>
+            </svg>
+          </div>
+          <h3>TVS iQube</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">IDC Range</span><span class="spec-value">212 km*</span></div>
+            <div class="spec-item"><span class="spec-label">Battery</span><span class="spec-value">5.3 kWh</span></div>
+            <div class="spec-item"><span class="spec-label">Top Speed</span><span class="spec-value">82 km/h</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 84,999/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M45 75 Q62 42 106 34 L160 34 Q187 38 189 65 L187 77 L45 77 Z" fill="#111" stroke="#444" stroke-width="1.5"/>
+              <circle cx="65" cy="83" r="20" fill="#222" stroke="#666" stroke-width="2.5"/><circle cx="65" cy="83" r="10" fill="#444"/>
+              <circle cx="163" cy="83" r="21" fill="#222" stroke="#666" stroke-width="2.5"/><circle cx="163" cy="83" r="11" fill="#444"/>
+              <text x="102" y="60" font-family="Arial" font-size="16" font-weight="900" fill="#fff">⚡</text>
+            </svg>
+          </div>
+          <h3>TVS X</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">IDC Range</span><span class="spec-value">140 km*</span></div>
+            <div class="spec-item"><span class="spec-label">Battery</span><span class="spec-value">3.8 kWh</span></div>
+            <div class="spec-item"><span class="spec-label">Top Speed</span><span class="spec-value">105 km/h</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,49,990/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M50 76 Q66 44 108 36 L162 36 Q188 40 190 66 L188 78 L50 78 Z" fill="#7b2d8b" stroke="#5a1f68" stroke-width="1.5"/>
+              <circle cx="70" cy="84" r="20" fill="#111" stroke="#7b2d8b" stroke-width="2.5"/><circle cx="70" cy="84" r="10" fill="#333"/>
+              <circle cx="165" cy="84" r="21" fill="#111" stroke="#7b2d8b" stroke-width="2.5"/><circle cx="165" cy="84" r="11" fill="#333"/>
+              <text x="105" y="61" font-family="Arial" font-size="15" fill="#fff">⚡</text>
+            </svg>
+          </div>
+          <h3>TVS Orbiter</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">IDC Range</span><span class="spec-value">158 km*</span></div>
+            <div class="spec-item"><span class="spec-label">Battery</span><span class="spec-value">3.1 kWh</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 99,900/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mopeds -->
+    <div class="tab-pane" id="tab-mopeds">
+      <div class="vehicle-cards">
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M55 78 Q70 50 110 40 L155 40 Q178 44 180 68 L178 80 L55 80 Z" fill="#e31e24" stroke="#b01018" stroke-width="1.5"/>
+              <circle cx="74" cy="86" r="19" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="74" cy="86" r="9" fill="#444"/>
+              <circle cx="157" cy="86" r="19" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="157" cy="86" r="9" fill="#444"/>
+            </svg>
+          </div>
+          <h3>TVS XL100</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label">Engine</span><span class="spec-value">99.7 cc</span></div>
+            <div class="spec-item"><span class="spec-label">Power</span><span class="spec-value">4.3 PS</span></div>
+            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">88 kgs</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 46,850/-</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+            <a href="#" class="btn-primary-sm">Test Ride</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Three Wheelers -->
+    <div class="tab-pane" id="tab-threewheelers">
+      <div class="vehicle-cards">
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M30 80 L40 50 Q70 25 130 24 Q175 24 185 55 L188 80 L30 80 Z" fill="#f5a623" stroke="#c78010" stroke-width="1.5"/>
+              <rect x="38" y="24" width="92" height="40" rx="4" fill="#e09000" stroke="#c07800" stroke-width="1"/>
+              <circle cx="60" cy="87" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="60" cy="87" r="11" fill="#444"/>
+              <circle cx="160" cy="87" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="160" cy="87" r="11" fill="#444"/>
+            </svg>
+          </div>
+          <h3>TVS King Deluxe</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label" style="font-size:12px;font-weight:700">CNG</span></div>
+            <div class="spec-item"><span class="spec-label" style="font-size:12px;font-weight:700">Petrol</span></div>
+            <div class="spec-item"><span class="spec-label" style="font-size:12px;font-weight:700">LPG</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-amount" style="font-size:12px">Contact local dealer</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+          </div>
+        </div>
+        <div class="vehicle-card">
+          <div class="vehicle-card-img">
+            <svg viewBox="0 0 200 110" class="bike-placeholder">
+              <path d="M30 80 L40 50 Q70 25 130 24 Q175 24 185 55 L188 80 L30 80 Z" fill="#00aa55" stroke="#007a3d" stroke-width="1.5"/>
+              <rect x="38" y="24" width="92" height="40" rx="4" fill="#009944" stroke="#007a33" stroke-width="1"/>
+              <circle cx="60" cy="87" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="60" cy="87" r="11" fill="#444"/>
+              <circle cx="160" cy="87" r="21" fill="#111" stroke="#333" stroke-width="2.5"/><circle cx="160" cy="87" r="11" fill="#444"/>
+              <text x="55" y="52" font-family="Arial" font-size="12" fill="#fff">⚡EV</text>
+            </svg>
+          </div>
+          <h3>TVS King EV Max</h3>
+          <div class="vehicle-specs">
+            <div class="spec-item"><span class="spec-label" style="font-size:12px;font-weight:700;color:green">Electric</span></div>
+          </div>
+          <div class="vehicle-price"><div class="price-amount" style="font-size:12px">Contact local dealer</div></div>
+          <div class="vehicle-cta">
+            <a href="#" class="btn-outline">Know More</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OUR STORIES ===== -->
+<section class="stories-section">
+  <div class="stories-header">
+    <div class="pre">The making of</div>
+    <h2>Our Stories</h2>
+  </div>
+  <div class="stories-grid">
+    <!-- Story cards with gradient placeholders -->
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#1a3a5c,#2d6a9f)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>TVS Leadership</h4><p>Interview with MD</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#2d1b69,#4a3aa6)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>Founder's Day</h4><p>2025</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#1a1a1a,#333)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>20 Years Apache</h4><p>A legendary journey</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#8B4513,#d4a76a)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>Leadership</h4><p>ET Award — Excellence honoured!</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#1a5f8a,#2980b9)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>TVS iQube</h4><p>Sri Lankan Odyssey</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#cc0000,#ff4444)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>TVS Racing</h4><p>Engineering Goosebumps</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#1a3a1a,#2d6a2d)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>Conservation</h4><p>Rewilding a Forest</p></div>
+    </div>
+    <div class="story-card">
+      <div class="story-placeholder" style="background:linear-gradient(135deg,#2d2d2d,#555)">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="story-text"><h4>Safety</h4><p>Protect Little Riders</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DEALERS ===== -->
+<section class="dealers-section">
+  <div class="dealers-inner">
+    <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:1;min-width:280px">
+        <div class="dealers-header">
+          <div class="pre">Find a Ride near you</div>
+          <h2>Dealers</h2>
+          <p>Find your nearest authorized TVS Motor dealer with our easy to use interactive tool. Get all details including phone number, address, map and driving directions.</p>
+        </div>
+        <a href="#" class="find-dealer-btn">Find A Dealer Near You</a>
+      </div>
+      <div style="flex:2;min-width:320px">
+        <div class="dealer-types">
+          <div class="dealer-type-card">
+            <div class="dealer-type-placeholder" style="background:linear-gradient(135deg,#1a3a5c,#2d6a9f)">🏍</div>
+            <div class="dealer-type-label">Two-Wheeler →</div>
+          </div>
+          <div class="dealer-type-card">
+            <div class="dealer-type-placeholder" style="background:linear-gradient(135deg,#0a0a0a,#333)">🏎</div>
+            <div class="dealer-type-label">Super Premium →</div>
+          </div>
+          <div class="dealer-type-card">
+            <div class="dealer-type-placeholder" style="background:linear-gradient(135deg,#003a1a,#00aa55)">⚡</div>
+            <div class="dealer-type-label">Electric Vehicle →</div>
+          </div>
+          <div class="dealer-type-card">
+            <div class="dealer-type-placeholder" style="background:linear-gradient(135deg,#5c3a1a,#f5a623)">🛺</div>
+            <div class="dealer-type-label">Three-Wheeler →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="become-dealer">
+      <div style="font-size:48px">🏢</div>
+      <div class="become-dealer-text">
+        <h3>Become a TVS Motor Dealer</h3>
+        <p>Partnering with TVSM gives you the opportunity to sell diversified products to possibly the largest set of customers, thus maximizing profits. Becoming a TVSM dealer could also offer a good supplementary business to your existing business, with an assured income every month at a minimal initial investment in infrastructure.</p>
+        <a href="#" class="find-dealer-btn" style="margin-top:14px;display:inline-block">Become A Dealer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RACING ===== -->
+<section class="racing-section">
+  <div class="racing-bg"></div>
+  <div class="racing-content">
+    <div style="font-size:48px;font-weight:900;color:#E31E24;letter-spacing:3px;margin-bottom:12px">TVS RACING</div>
+    <h2>Racing DNA Unleashed #TVSRacing</h2>
+    <a href="#" class="racing-btn">Explore Now</a>
+  </div>
+</section>
+
+<!-- ===== ACHIEVEMENTS ===== -->
+<section class="achievements-section">
+  <div class="achievements-header">
+    <div>
+      <div class="pre">Our pride</div>
+      <h2>Achievements</h2>
+    </div>
+    <a href="#" class="explore-link">Explore →</a>
+  </div>
+  <div class="achievements-grid">
+    <div class="achievement-card">
+      <div class="achievement-icon">🏆</div>
+      <div>
+        <h3>Great Place to Work</h3>
+        <p>TVS Motor Company has been certified as a Great Place to Work by the Great Place to Work Institute (India) for the period Jan 2025 – Jan 2026.</p>
+      </div>
+    </div>
+    <div class="achievement-card">
+      <div class="achievement-icon">🥇</div>
+      <div>
+        <h3>Commuter of the Year</h3>
+        <p>Commuter of the year - TVS Raider 125</p>
+      </div>
+    </div>
+    <div class="achievement-card">
+      <div class="achievement-icon">🎖</div>
+      <div>
+        <h3>Motorcycle of the Year</h3>
+        <p>Motorcycle of the year - TVS Raider 125</p>
+      </div>
+    </div>
+    <div class="achievement-card">
+      <div class="achievement-icon">⭐</div>
+      <div>
+        <h3>The Deming Prize</h3>
+        <p>TVS Motor Company is the only two-wheeler company in the world to be awarded the world's most prestigious and coveted recognition in TQM.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT US ===== -->
+<section class="about-section">
+  <div class="about-inner">
+    <div class="about-header">
+      <div class="pre">What Guides Us</div>
+      <h2>About Us <a href="#" class="explore-link" style="font-size:14px">Explore →</a></h2>
+      <p>We are committed to being a highly profitable, socially responsible, and leading manufacturer of high value for money, environmentally friendly, lifetime personal transportation products under the TVSM brand, for customers predominantly in Asian markets and to provide fulfillment and prosperity for employees, dealers, and suppliers.</p>
+    </div>
+    <div class="about-cards">
+      <div class="about-card">
+        <h3>Over 50 million vehicles on road</h3>
+        <p>With more than 50 million vehicles on road, TVSM celebrates mobility and progress for countless number of people.</p>
+      </div>
+      <div class="about-card">
+        <h3>A vehicle for everyone</h3>
+        <p>With the largest portfolio of products, ranging from mopeds to premium performance bikes, TVSM has a vehicle that is perfectly fit for you.</p>
+      </div>
+      <div class="about-card">
+        <h3>Presence in 80+ countries</h3>
+        <p>TVSM vehicles are providing joy to customers across more than 80 countries, and this footprint is only growing.</p>
+      </div>
+      <div class="about-card">
+        <h3>Industry Leader</h3>
+        <p>TVSM has always been the frontrunner in innovation, giving many industry-firsts to customers, like connected scooters and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-logo">
+      <svg width="100" height="28" viewBox="0 0 100 28"><text x="0" y="22" font-family="Arial" font-size="20" font-weight="900" fill="#004A8F">TVS</text><path d="M38 5 L40 5 L50 20 L48 20 Z" fill="#E31E24"/></svg>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Motorcycles</h4>
+        <ul>
+          <li><a href="#">TVS Apache</a></li>
+          <li><a href="#">Apache RTX</a></li>
+          <li><a href="#">Apache RR 310</a></li>
+          <li><a href="#">Apache RTR 310</a></li>
+          <li><a href="#">RTR 200 4V</a></li>
+          <li><a href="#">TVS Ronin</a></li>
+          <li><a href="#">TVS Raider</a></li>
+          <li><a href="#">TVS Radeon</a></li>
+          <li><a href="#">TVS Sport</a></li>
+          <li><a href="#">TVS Star City+</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Electric Scooters</h4>
+        <ul>
+          <li><a href="#">TVS iQube</a></li>
+          <li><a href="#">iQube 2.2 kWh</a></li>
+          <li><a href="#">iQube 3.1 kWh</a></li>
+          <li><a href="#">iQube ST 5.3 kWh</a></li>
+          <li><a href="#">TVS X</a></li>
+          <li><a href="#">TVS Orbiter</a></li>
+        </ul>
+        <h4 style="margin-top:16px">Scooters</h4>
+        <ul>
+          <li><a href="#">TVS Ntorq 150</a></li>
+          <li><a href="#">TVS Ntorq 125</a></li>
+          <li><a href="#">TVS Jupiter 110</a></li>
+          <li><a href="#">TVS Jupiter 125</a></li>
+          <li><a href="#">TVS Zest 110</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Mopeds</h4>
+        <ul><li><a href="#">TVS XL 100</a></li></ul>
+        <h4 style="margin-top:16px">Three Wheelers</h4>
+        <ul>
+          <li><a href="#">TVS King Deluxe</a></li>
+          <li><a href="#">TVS King Duramax Plus</a></li>
+          <li><a href="#">TVS King EV Max</a></li>
+          <li><a href="#">TVS King Kargo</a></li>
+          <li><a href="#">TVS King Kargo HD EV</a></li>
+        </ul>
+        <h4 style="margin-top:16px">Rides &amp; Events</h4>
+        <ul>
+          <li><a href="#">TVS Racing</a></li>
+          <li><a href="#">TVS Motosoul</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Investors</h4>
+        <ul>
+          <li><a href="#">Overview</a></li>
+          <li><a href="#">Financial Reports</a></li>
+          <li><a href="#">Communication</a></li>
+        </ul>
+        <h4 style="margin-top:16px">TVS Dealer Locator</h4>
+        <ul>
+          <li><a href="#">Two Wheeler Dealers</a></li>
+          <li><a href="#">Three Wheeler Dealers</a></li>
+          <li><a href="#">Super Premium Dealers</a></li>
+          <li><a href="#">Electric Scooter Dealers</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>About Us</h4>
+        <ul>
+          <li><a href="#">Overview</a></li>
+          <li><a href="#">Company Vision</a></li>
+          <li><a href="#">Achievements</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+        <h4 style="margin-top:16px">News &amp; Media</h4>
+        <ul>
+          <li><a href="#">News</a></li>
+          <li><a href="#">Press Release</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <ul>
+          <li>
+  <a href="file:///C:/Users/SHUBHAM/Downloads/accessories_updated.html" target="_blank">
+    Accessories
+  </a>
+</li>
+          <li><a href="#">Merchandise</a></li>
+          <li><a href="#">TVS Genuine Parts</a></li>
+          <li><a href="#">TRU4 Oil</a></li>
+        </ul>
+        <div class="footer-app" style="margin-top:20px">
+          <h4>TVS CONNECT APP</h4>
+          <div class="app-btns">
+            <a href="#" class="app-btn">▶ Google Play</a>
+            <a href="#" class="app-btn"> App Store</a>
+          </div>
+          <h4>TVS ARIVE APP</h4>
+          <div class="app-btns">
+            <a href="#" class="app-btn">▶ Google Play</a>
+            <a href="#" class="app-btn"> App Store</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <div class="footer-contact">
+        <h4>Contact</h4>
+        <div class="contact-row"><span class="contact-icon">📞</span><a href="tel:18002587555">1800-258-7555</a></div>
+        <div class="contact-row"><span class="contact-icon">✉</span><a href="mailto:customercare@tvsmotor.com">customercare@tvsmotor.com</a></div>
+        <div class="contact-row"><span class="contact-icon">🆘</span><a href="tel:18002587111">Road Side: Dial 1800-258-7111 and Press "1"</a></div>
+      </div>
+      <div>
+        <h4>Follow Us</h4>
+        <div class="footer-social">
+          <a href="#" class="social-icon">𝕏</a>
+          <a href="#" class="social-icon">in</a>
+          <a href="#" class="social-icon">f</a>
+          <a href="#" class="social-icon">📷</a>
+          <a href="#" class="social-icon">▶</a>
+        </div>
+        <div class="footer-copy">
+          <p>© TVS Motor Company. All Rights Reserved</p>
+          <div class="footer-copy-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Disclaimer</a>
+            <a href="#">Cookie Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Hero slider
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+
+  function goToSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (n + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+
+  function changeSlide(dir) { goToSlide(currentSlide + dir); }
+
+  setInterval(() => changeSlide(1), 5000);
+
+  // Tab switcher
+  function switchTab(btn, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+</script>
+</body>
+</html>
