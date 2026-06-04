@@ -219,11 +219,7 @@ console.log("Styler Sitemap — Resilient Version06 (TVS)");
             interaction: { name: "Vehicle Booked" },
             user: {
                 attributes: {
-                    bikeName: bikeName,
-                    bookedBikeName: bikeName,
-                    vehicle: bikeName,
-                    bookingType: "Book Now",
-                    lastBookedAt: new Date().toISOString()
+                    confirmedBookedBike: bikeName
                 }
             }
         });

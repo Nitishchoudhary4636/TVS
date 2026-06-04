@@ -93,30 +93,26 @@
     return null;
   }
 
-  /** Stores booked bike on user profile (dataLayer + local) for personalization */
+  /** Confirmed Book Now — stores which bike was booked (single user attribute) */
   window.setTVSUserBookedBike = function (bikeName) {
     if (!bikeName) return;
     window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
-    window.TVS_USER_PROFILE.bikeName = bikeName;
-    window.TVS_USER_PROFILE.bookedBikeName = bikeName;
+    window.TVS_USER_PROFILE.confirmedBookedBike = bikeName;
     window.TVS_USER_PROFILE.lastBookedAt = new Date().toISOString();
     try {
-      localStorage.setItem("tvs_bikeName", bikeName);
-      localStorage.setItem("tvs_bookedBikeName", bikeName);
+      localStorage.setItem("tvs_confirmedBookedBike", bikeName);
     } catch (e) { /* private mode */ }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: "user_bike_booked",
+      event: "confirmed_booking",
       user: {
         attributes: {
-          bikeName: bikeName,
-          bookedBikeName: bikeName,
-          lastBookedAt: window.TVS_USER_PROFILE.lastBookedAt
+          confirmedBookedBike: bikeName
         }
       },
       MCP: {
-        bikeName: bikeName,
-        bookedBikeName: bikeName
+        pageType: "Booking",
+        confirmedBookedBike: bikeName
       }
     });
   };
@@ -1476,10 +1472,10 @@
       window.setTVSUserBookedBike(vehicle.name);
       pushBookingEvent('vehicle_booked', vehicle, {
         bookingType: 'Book Now',
+        confirmedBookedBike: vehicle.name,
         user: {
           attributes: {
-            bikeName: vehicle.name,
-            bookedBikeName: vehicle.name
+            confirmedBookedBike: vehicle.name
           }
         }
       });
