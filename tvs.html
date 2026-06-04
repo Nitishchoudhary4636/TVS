@@ -93,11 +93,70 @@
     return null;
   }
 
+  function findCatalogVehicleByPid(pid) {
+    if (!pid) return null;
+    var keys = Object.keys(window.TVS_VEHICLE_CATALOG.categories);
+    for (var k = 0; k < keys.length; k++) {
+      var items = window.TVS_VEHICLE_CATALOG.categories[keys[k]].items;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].id === pid) return items[i];
+      }
+    }
+    return null;
+  }
+
+  function buildProductDetailFromCard(card, catalogItem) {
+    var specs = {};
+    card.querySelectorAll(".spec-item").forEach(function (row) {
+      var label = row.querySelector(".spec-label");
+      var value = row.querySelector(".spec-value");
+      if (label && value) specs[label.textContent.trim()] = value.textContent.trim();
+    });
+    var img = card.querySelector(".vehicle-card-img img");
+    return {
+      pid: catalogItem.id,
+      id: catalogItem.id,
+      name: catalogItem.name,
+      price: catalogItem.price || 0,
+      priceDisplay: (card.querySelector(".price-amount") || {}).textContent
+        ? card.querySelector(".price-amount").textContent.trim() : "",
+      category: catalogItem.category,
+      imageUrl: catalogItem.imageUrl || (img ? img.src : ""),
+      engine: catalogItem.engine || specs.Engine || "",
+      power: catalogItem.power || specs.Power || "",
+      weight: catalogItem.weight || specs.Weight || "",
+      range: catalogItem.range || specs["IDC Range"] || "",
+      battery: catalogItem.battery || specs.Battery || "",
+      fuel: catalogItem.fuel || "",
+      availability: catalogItem.availability || "InStock",
+      specs: specs
+    };
+  }
+
+  function hydrateVehicleCards() {
+    document.querySelectorAll(".vehicle-card").forEach(function (card) {
+      var nameEl = card.querySelector("h3");
+      if (!nameEl) return;
+      var catalogItem = findCatalogVehicle(nameEl.textContent.trim());
+      if (!catalogItem) return;
+      var product = buildProductDetailFromCard(card, catalogItem);
+      var json = JSON.stringify(product);
+      card.setAttribute("data-pid", product.pid);
+      card.setAttribute("data-product", json);
+      card.querySelectorAll(".btn-book-now, .btn-test-ride").forEach(function (btn) {
+        btn.setAttribute("data-pid", product.pid);
+        btn.setAttribute("data-product", json);
+      });
+    });
+  }
+
   /** Confirmed Test Ride — profile attributes (clear testDrive* names) */
   window.setTVSConfirmedTestDrive = function (payload) {
-    if (!payload || !payload.bikeName) return;
+    if (!payload || (!payload.bikeName && !payload.pid)) return;
+    var bikeName = payload.bikeName || (payload.product && payload.product.name) || "";
     window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
-    window.TVS_USER_PROFILE.confirmedTestDriveBike = payload.bikeName;
+    window.TVS_USER_PROFILE.confirmedTestDriveBike = bikeName;
+    window.TVS_USER_PROFILE.testDrivePid = payload.pid || (payload.product && payload.product.pid) || "";
     window.TVS_USER_PROFILE.testDriveCustomerName = payload.fullName || "";
     window.TVS_USER_PROFILE.testDrivePhone = payload.phone || "";
     window.TVS_USER_PROFILE.testDriveEmail = payload.email || "";
@@ -106,7 +165,8 @@
     window.TVS_USER_PROFILE.testDrivePreferredDate = payload.preferredDate || "";
     window.TVS_USER_PROFILE.testDriveNotes = payload.message || "";
     try {
-      localStorage.setItem("tvs_confirmedTestDriveBike", payload.bikeName);
+      localStorage.setItem("tvs_confirmedTestDriveBike", bikeName);
+      if (payload.pid) localStorage.setItem("tvs_testDrivePid", payload.pid);
     } catch (e) { /* private mode */ }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
@@ -114,7 +174,8 @@
       user: {
         identities: { emailAddress: payload.email || "" },
         attributes: {
-          confirmedTestDriveBike: payload.bikeName,
+          confirmedTestDriveBike: bikeName,
+          testDrivePid: payload.pid || "",
           testDriveCustomerName: payload.fullName || "",
           testDrivePhone: payload.phone || "",
           testDriveEmail: payload.email || "",
@@ -126,31 +187,52 @@
       },
       MCP: {
         pageType: "TestRide",
-        confirmedTestDriveBike: payload.bikeName
+        confirmedTestDriveBike: bikeName,
+        pid: payload.pid || "",
+        Item: payload.product || null
       }
     });
   };
 
-  /** Confirmed Book Now — stores which bike was booked (single user attribute) */
-  window.setTVSUserBookedBike = function (bikeName) {
-    if (!bikeName) return;
+  /** Confirmed Book Now — stores booked bike + pid + full product */
+  window.setTVSUserBookedBike = function (product) {
+    if (!product) return;
+    if (typeof product === "string") product = { name: product, pid: product };
+    var pid = product.pid || product.id || "";
+    var name = product.name || "";
+    if (!name && !pid) return;
     window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
-    window.TVS_USER_PROFILE.confirmedBookedBike = bikeName;
+    window.TVS_USER_PROFILE.confirmedBookedBike = name;
+    window.TVS_USER_PROFILE.bookedPid = pid;
+    window.TVS_USER_PROFILE.lastBookedProduct = product;
     window.TVS_USER_PROFILE.lastBookedAt = new Date().toISOString();
     try {
-      localStorage.setItem("tvs_confirmedBookedBike", bikeName);
+      localStorage.setItem("tvs_confirmedBookedBike", name);
+      if (pid) localStorage.setItem("tvs_bookedPid", pid);
+      localStorage.setItem("tvs_lastBookedProduct", JSON.stringify(product));
     } catch (e) { /* private mode */ }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "confirmed_booking",
       user: {
         attributes: {
-          confirmedBookedBike: bikeName
+          confirmedBookedBike: name,
+          bookedPid: pid
         }
       },
       MCP: {
         pageType: "Booking",
-        confirmedBookedBike: bikeName
+        confirmedBookedBike: name,
+        pid: pid,
+        Item: {
+          id: pid,
+          name: name,
+          price: product.price || 0,
+          category: product.category || "",
+          imageUrl: product.imageUrl || "",
+          availability: product.availability || "InStock",
+          specs: product.specs || {}
+        }
       }
     });
   };
@@ -1345,6 +1427,8 @@
       <p class="modal-vehicle" id="testRideVehicleLabel"></p>
       <form id="testRideForm" class="modal-form" novalidate>
         <input type="hidden" name="vehicle" id="testRideVehicleInput">
+        <input type="hidden" name="pid" id="testRidePidInput">
+        <input type="hidden" name="productJson" id="testRideProductJson">
         <label for="trName">Full Name *</label>
         <input type="text" id="trName" name="fullName" required placeholder="Your full name">
         <label for="trEmail">Email *</label>
@@ -1434,32 +1518,52 @@
   var testRideSuccessView = document.getElementById('testRideSuccessView');
 
   function getVehicleFromCard(card) {
-    if (!card) return { name: 'TVS Vehicle', price: '' };
-    var h3 = card.querySelector('h3');
-    var priceEl = card.querySelector('.price-amount');
+    if (!card) return { pid: "", id: "", name: "TVS Vehicle", price: 0, priceDisplay: "" };
+    if (card.dataset.product) {
+      try { return JSON.parse(card.dataset.product); } catch (err) { /* fall through */ }
+    }
+    var h3 = card.querySelector("h3");
+    var name = h3 ? h3.textContent.trim() : "TVS Vehicle";
+    var catalogItem = findCatalogVehicle(name);
+    if (catalogItem) return buildProductDetailFromCard(card, catalogItem);
     return {
-      name: h3 ? h3.textContent.trim() : 'TVS Vehicle',
-      price: priceEl ? priceEl.textContent.trim() : ''
+      pid: "",
+      id: "",
+      name: name,
+      price: 0,
+      priceDisplay: (card.querySelector(".price-amount") || {}).textContent
+        ? card.querySelector(".price-amount").textContent.trim() : ""
     };
   }
 
-  function pushBookingEvent(eventName, vehicle, extra) {
-    var catalogItem = findCatalogVehicle(vehicle.name);
-    var itemId = catalogItem ? catalogItem.id : vehicle.name.toLowerCase().replace(/\s+/g, '-');
-    var pageType = eventName === 'test_ride_booked' ? 'TestRide' : 'Booking';
+  function pushBookingEvent(eventName, product, extra) {
+    var pid = product.pid || product.id || "";
+    if (!pid && product.name) {
+      var cat = findCatalogVehicle(product.name);
+      if (cat) pid = cat.id;
+    }
+    if (!pid && product.name) pid = product.name.toLowerCase().replace(/\s+/g, "-");
+    var pageType = eventName === "test_ride_booked" ? "TestRide" : "Booking";
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: eventName,
       MCP: Object.assign({
         pageType: pageType,
         currency: window.TVS_VEHICLE_CATALOG.currency,
+        pid: pid,
         Item: {
-          id: itemId,
-          name: vehicle.name,
-          price: catalogItem ? catalogItem.price : 0,
-          category: catalogItem ? catalogItem.category : '',
-          imageUrl: catalogItem ? (catalogItem.imageUrl || '') : '',
-          availability: catalogItem ? catalogItem.availability : 'InStock'
+          id: pid,
+          name: product.name,
+          price: product.price || 0,
+          category: product.category || "",
+          imageUrl: product.imageUrl || "",
+          availability: product.availability || "InStock",
+          engine: product.engine || "",
+          power: product.power || "",
+          weight: product.weight || "",
+          range: product.range || "",
+          battery: product.battery || "",
+          specs: product.specs || {}
         }
       }, extra || {})
     });
@@ -1474,23 +1578,36 @@
     bookToastTimer = setTimeout(function () { toast.classList.remove('show'); }, 4500);
   }
 
-  function openTestRideModal(vehicle) {
+  function openTestRideModal(product) {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: 'test_drive_form_open',
+      event: "test_drive_form_open",
       MCP: {
-        pageType: 'TestRide',
-        testDriveSelectedBike: vehicle.name,
+        pageType: "TestRide",
+        testDriveSelectedBike: product.name,
+        pid: product.pid || product.id || "",
         currency: window.TVS_VEHICLE_CATALOG.currency,
-        Item: { id: (findCatalogVehicle(vehicle.name) || {}).id || '', name: vehicle.name }
+        Item: {
+          id: product.pid || product.id || "",
+          name: product.name,
+          price: product.price || 0,
+          category: product.category || "",
+          imageUrl: product.imageUrl || "",
+          specs: product.specs || {}
+        }
       }
     });
-    document.getElementById('testRideVehicleLabel').textContent = 'Vehicle: ' + vehicle.name;
-    document.getElementById('testRideVehicleInput').value = vehicle.name;
+    document.getElementById("testRideVehicleLabel").textContent =
+      "Vehicle: " + product.name + (product.pid ? " (PID: " + product.pid + ")" : "");
+    document.getElementById("testRideVehicleInput").value = product.name;
+    document.getElementById("testRidePidInput").value = product.pid || product.id || "";
+    document.getElementById("testRideProductJson").value = JSON.stringify(product);
     testRideFormView.hidden = false;
     testRideSuccessView.hidden = true;
     testRideForm.reset();
-    document.getElementById('testRideVehicleInput').value = vehicle.name;
+    document.getElementById("testRideVehicleInput").value = product.name;
+    document.getElementById("testRidePidInput").value = product.pid || product.id || "";
+    document.getElementById("testRideProductJson").value = JSON.stringify(product);
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('trDate').setAttribute('min', today);
     testRideModal.classList.add('open');
@@ -1506,18 +1623,20 @@
     var bookBtn = e.target.closest('.btn-book-now');
     if (bookBtn) {
       e.preventDefault();
-      var vehicle = getVehicleFromCard(bookBtn.closest('.vehicle-card'));
-      window.setTVSUserBookedBike(vehicle.name);
-      pushBookingEvent('vehicle_booked', vehicle, {
-        bookingType: 'Book Now',
-        confirmedBookedBike: vehicle.name,
+      var product = getVehicleFromCard(bookBtn.closest(".vehicle-card"));
+      window.setTVSUserBookedBike(product);
+      pushBookingEvent("vehicle_booked", product, {
+        bookingType: "Book Now",
+        confirmedBookedBike: product.name,
+        pid: product.pid || product.id,
         user: {
           attributes: {
-            confirmedBookedBike: vehicle.name
+            confirmedBookedBike: product.name,
+            bookedPid: product.pid || product.id || ""
           }
         }
       });
-      showBookSuccessToast(vehicle.name);
+      showBookSuccessToast(product.name);
       return;
     }
     var testBtn = e.target.closest('.btn-test-ride');
@@ -1540,15 +1659,22 @@
       return;
     }
     var fd = new FormData(testRideForm);
+    var product = {};
+    try {
+      product = JSON.parse(fd.get("productJson") || "{}");
+    } catch (err) { product = {}; }
     var payload = {
-      vehicle: fd.get('vehicle'),
-      fullName: fd.get('fullName'),
-      email: fd.get('email'),
-      phone: fd.get('phone'),
-      city: fd.get('city'),
-      preferredDate: fd.get('preferredDate'),
-      pincode: fd.get('pincode') || '',
-      message: fd.get('message') || ''
+      pid: fd.get("pid") || product.pid || "",
+      vehicle: fd.get("vehicle"),
+      product: product,
+      bikeName: fd.get("vehicle"),
+      fullName: fd.get("fullName"),
+      email: fd.get("email"),
+      phone: fd.get("phone"),
+      city: fd.get("city"),
+      preferredDate: fd.get("preferredDate"),
+      pincode: fd.get("pincode") || "",
+      message: fd.get("message") || ""
     };
     window.TVS_TEST_RIDE_LEADS = window.TVS_TEST_RIDE_LEADS || [];
     window.TVS_TEST_RIDE_LEADS.push(Object.assign({ submittedAt: new Date().toISOString() }, payload));
@@ -1562,9 +1688,10 @@
       preferredDate: payload.preferredDate,
       message: payload.message
     });
-    pushBookingEvent('test_ride_booked', { name: payload.vehicle, price: '' }, {
-      bookingType: 'Test Ride',
+    pushBookingEvent("test_ride_booked", product.name ? product : { name: payload.vehicle, pid: payload.pid }, {
+      bookingType: "Test Ride",
       confirmedTestDriveBike: payload.vehicle,
+      pid: payload.pid,
       user: {
         identities: { emailAddress: payload.email },
         attributes: {
@@ -1575,16 +1702,21 @@
           testDriveCity: payload.city,
           testDrivePincode: payload.pincode,
           testDrivePreferredDate: payload.preferredDate,
-          testDriveNotes: payload.message
+          testDriveNotes: payload.message,
+          testDrivePid: payload.pid
         }
       }
     });
-    document.getElementById('testRideSuccessMsg').textContent =
-      'Your test ride for ' + payload.vehicle + ' on ' + payload.preferredDate +
-      ' is confirmed. We will call you at ' + payload.phone + '.';
+    document.getElementById("testRideSuccessMsg").textContent =
+      "Your test ride for " + payload.vehicle +
+      (payload.pid ? " (PID: " + payload.pid + ")" : "") +
+      " on " + payload.preferredDate +
+      " is confirmed. We will call you at " + payload.phone + ".";
     testRideFormView.hidden = true;
     testRideSuccessView.hidden = false;
   });
+
+  hydrateVehicleCards();
 </script>
 </body>
 </html>
