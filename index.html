@@ -4,6 +4,138 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Best Two Wheeler In India - Bike, Scooter, Motorcycle | TVS Motor</title>
+<script>
+  window.TVS_VEHICLE_CATALOG = {
+    currency: "INR",
+    categories: {
+      motorcycles: {
+        itemListId: "motorcycles",
+        itemListName: "Motorcycles",
+        items: [
+          { id: "apache-rtx", name: "Apache RTX", price: 199000, category: "motorcycles", imageUrl: "https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/Apache-RTX-PLP.webp", engine: "299.1 cc", power: "36 PS", weight: "180 Kg", availability: "InStock" },
+          { id: "apache-rr-310", name: "Apache RR 310", price: 262240, category: "motorcycles", imageUrl: "https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/09-03-26/RR-310.webp", engine: "312.12 cc", power: "38 PS", weight: "174 kgs", availability: "InStock" },
+          { id: "apache-rtr-310", name: "Apache RTR 310", price: 225240, category: "motorcycles", imageUrl: "https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/09-03-26/RTR-310.webp", engine: "312.12 cc", power: "35.6 PS", weight: "169 kgs", availability: "InStock" },
+          { id: "tvs-ronin", name: "TVS Ronin", price: 128690, category: "motorcycles", imageUrl: "https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/15-05-25/TVS-Ronin.webp", engine: "225.9 cc", power: "20.4 PS", weight: "160 kgs", availability: "InStock" },
+          { id: "tvs-raider", name: "TVS Raider", price: 82860, category: "motorcycles", imageUrl: "https://www.tvsmotor.com/-/media/Feature/Navbar/New-Product-images/15-05-25/TVS-Raider.webp", engine: "124.8 cc", power: "11.38 PS", weight: "123 kgs", availability: "InStock" }
+        ]
+      },
+      scooters: {
+        itemListId: "scooters",
+        itemListName: "Scooters",
+        items: [
+          { id: "tvs-ntorq-150", name: "TVS Ntorq 150", price: 111350, category: "scooters", engine: "149.7 cc", power: "13.1 PS", weight: "115 kg", availability: "InStock" },
+          { id: "tvs-ntorq-125", name: "TVS Ntorq 125", price: 81750, category: "scooters", engine: "124.8 cc", power: "10.2 PS", weight: "110 kgs", availability: "InStock" },
+          { id: "tvs-jupiter", name: "TVS Jupiter", price: 73550, category: "scooters", engine: "113.3 cc", power: "8 PS", weight: "106 Kg", availability: "InStock" }
+        ]
+      },
+      electric: {
+        itemListId: "electric",
+        itemListName: "Electric",
+        items: [
+          { id: "tvs-iqube", name: "TVS iQube", price: 84999, category: "electric", range: "212 km*", battery: "5.3 kWh", topSpeed: "82 km/h", availability: "InStock" },
+          { id: "tvs-x", name: "TVS X", price: 249990, category: "electric", range: "140 km*", battery: "3.8 kWh", topSpeed: "105 km/h", availability: "InStock" },
+          { id: "tvs-orbiter", name: "TVS Orbiter", price: 99900, category: "electric", range: "158 km*", battery: "3.1 kWh", availability: "InStock" }
+        ]
+      },
+      mopeds: {
+        itemListId: "mopeds",
+        itemListName: "Mopeds",
+        items: [
+          { id: "tvs-xl100", name: "TVS XL100", price: 46850, category: "mopeds", engine: "99.7 cc", power: "4.3 PS", weight: "88 kgs", availability: "InStock" }
+        ]
+      },
+      threewheelers: {
+        itemListId: "threewheelers",
+        itemListName: "Three Wheelers",
+        items: [
+          { id: "tvs-king-deluxe", name: "TVS King Deluxe", price: 0, category: "threewheelers", fuel: "CNG, Petrol, LPG", availability: "ContactDealer" },
+          { id: "tvs-king-ev-max", name: "TVS King EV Max", price: 0, category: "threewheelers", fuel: "Electric", availability: "ContactDealer" }
+        ]
+      }
+    }
+  };
+
+  function catalogToMcpItems(vehicles) {
+    return vehicles.map(function (v) {
+      return {
+        item_id: v.id,
+        item_sku: v.id,
+        item_name: v.name,
+        price: v.price || 0,
+        quantity: 1,
+        category: v.category,
+        imageUrl: v.imageUrl || "",
+        url: window.location.origin + window.location.pathname + "#" + v.id,
+        availability: v.availability || "InStock"
+      };
+    });
+  }
+
+  function getCatalogItemsByCategory(categoryId) {
+    var cat = window.TVS_VEHICLE_CATALOG.categories[categoryId];
+    return cat ? catalogToMcpItems(cat.items) : [];
+  }
+
+  function getAllCatalogItems() {
+    return Object.keys(window.TVS_VEHICLE_CATALOG.categories).reduce(function (all, key) {
+      return all.concat(getCatalogItemsByCategory(key));
+    }, []);
+  }
+
+  function findCatalogVehicle(name) {
+    var keys = Object.keys(window.TVS_VEHICLE_CATALOG.categories);
+    for (var k = 0; k < keys.length; k++) {
+      var items = window.TVS_VEHICLE_CATALOG.categories[keys[k]].items;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].name === name) return items[i];
+      }
+    }
+    return null;
+  }
+
+  /** Stores booked bike on user profile (dataLayer + local) for personalization */
+  window.setTVSUserBookedBike = function (bikeName) {
+    if (!bikeName) return;
+    window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
+    window.TVS_USER_PROFILE.bikeName = bikeName;
+    window.TVS_USER_PROFILE.bookedBikeName = bikeName;
+    window.TVS_USER_PROFILE.lastBookedAt = new Date().toISOString();
+    try {
+      localStorage.setItem("tvs_bikeName", bikeName);
+      localStorage.setItem("tvs_bookedBikeName", bikeName);
+    } catch (e) { /* private mode */ }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "user_bike_booked",
+      user: {
+        attributes: {
+          bikeName: bikeName,
+          bookedBikeName: bikeName,
+          lastBookedAt: window.TVS_USER_PROFILE.lastBookedAt
+        }
+      },
+      MCP: {
+        bikeName: bikeName,
+        bookedBikeName: bikeName
+      }
+    });
+  };
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "page_view",
+    MCP: {
+      pageName: "Home",
+      pageType: "Home",
+      currency: window.TVS_VEHICLE_CATALOG.currency,
+      itemListName: "TVS Motor India",
+      vehicleCatalog: window.TVS_VEHICLE_CATALOG,
+      items: getAllCatalogItems()
+    }
+  });
+</script>
+<script type="text/javascript" src="//cdn.evgnet.com/beacon/a556rq555550mxe43n3n3n091568480/tvs/scripts/evergage.min.js"></script>
+<script src="tvs-sitemap.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -197,6 +329,48 @@
     transition: background 0.2s; display: flex; align-items: center; justify-content: center;
   }
   .btn-primary-sm:hover { background: #003a72; }
+  .vehicle-cta button { font-family: inherit; width: 100%; }
+
+  .success-toast {
+    position: fixed; top: 80px; right: 24px; z-index: 2000;
+    background: #0d7a3e; color: #fff; padding: 16px 22px; border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18); font-size: 14px; font-weight: 600;
+    max-width: 320px; opacity: 0; transform: translateX(120%); transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+  .success-toast.show { opacity: 1; transform: translateX(0); }
+  .success-toast strong { display: block; font-size: 15px; margin-bottom: 4px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 12px; width: 100%; max-width: 440px;
+    padding: 28px 24px 24px; position: relative; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 14px; background: none; border: none;
+    font-size: 24px; color: #666; cursor: pointer; line-height: 1;
+  }
+  .modal-box h2 { font-size: 20px; font-weight: 800; color: var(--tvs-blue); margin-bottom: 4px; }
+  .modal-vehicle { font-size: 14px; color: var(--text-gray); margin-bottom: 20px; }
+  .modal-form label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+  .modal-form input, .modal-form select, .modal-form textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--tvs-border); border-radius: 6px;
+    font-size: 14px; margin-bottom: 14px; font-family: inherit;
+  }
+  .modal-form textarea { resize: vertical; min-height: 72px; }
+  .modal-submit {
+    width: 100%; padding: 12px; background: var(--tvs-blue); color: #fff; border: none;
+    border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .modal-submit:hover { background: #003a72; }
+  .modal-success { text-align: center; padding: 20px 0; }
+  .modal-success .ok-icon { font-size: 48px; margin-bottom: 12px; }
+  .modal-success h3 { font-size: 18px; font-weight: 800; color: #0d7a3e; margin-bottom: 8px; }
+  .modal-success p { font-size: 14px; color: var(--text-gray); line-height: 1.5; }
 
   .view-all-wrap { text-align: center; padding: 24px 0 0; }
   .view-all-link {
@@ -379,7 +553,7 @@
 <body>
 
 <!-- ===== HEADER ===== -->
-<header class="main-header">
+<header class="main-header navbar site-header">
   <div class="header-container">
     <div class="main-logo">
       <a href="#">
@@ -408,7 +582,7 @@
 </header>
 
 <!-- ===== HERO BANNER ===== -->
-<section class="hero-section">
+<section class="hero-section" id="hero">
   <div class="hero-slider" id="heroSlider">
 
     <!-- Slide 1 - Jupiter 125 -->
@@ -455,7 +629,7 @@
 </section>
 
 <!-- ===== DISCOVER VEHICLES ===== -->
-<section class="discover-section">
+<section class="discover-section" id="product-recommendation">
   <div class="section-header">
     <div class="section-title">
       <div class="pre">Discover Your Ride</div>
@@ -479,7 +653,7 @@
 
     <!-- Motorcycles -->
     <div class="tab-pane active" id="tab-motorcycles">
-      <div class="vehicle-cards">
+      <div class="vehicle-cards featured-products products-section plp-products">
 
         <!-- Apache RTX -->
         <div class="vehicle-card">
@@ -496,8 +670,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,99,000/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
 
@@ -515,8 +689,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,62,240/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
 
@@ -534,8 +708,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,25,240/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
 
@@ -553,8 +727,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,28,690/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
 
@@ -572,8 +746,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 82,860/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
 
@@ -585,7 +759,7 @@
 
     <!-- Scooters -->
     <div class="tab-pane" id="tab-scooters">
-      <div class="vehicle-cards">
+      <div class="vehicle-cards featured-products products-section plp-products">
         <div class="vehicle-card">
           <div class="vehicle-card-img">
             <svg viewBox="0 0 200 110" class="bike-placeholder">
@@ -603,8 +777,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 1,11,350/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
         <div class="vehicle-card">
@@ -624,8 +798,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 81,750/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
         <div class="vehicle-card">
@@ -645,8 +819,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 73,550/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
       </div>
@@ -654,7 +828,7 @@
 
     <!-- Electric -->
     <div class="tab-pane" id="tab-electric">
-      <div class="vehicle-cards">
+      <div class="vehicle-cards featured-products products-section plp-products">
         <div class="vehicle-card">
           <div class="vehicle-card-img">
             <svg viewBox="0 0 200 110" class="bike-placeholder">
@@ -673,8 +847,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 84,999/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
         <div class="vehicle-card">
@@ -694,8 +868,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 2,49,990/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
         <div class="vehicle-card">
@@ -714,8 +888,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 99,900/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
       </div>
@@ -723,7 +897,7 @@
 
     <!-- Mopeds -->
     <div class="tab-pane" id="tab-mopeds">
-      <div class="vehicle-cards">
+      <div class="vehicle-cards featured-products products-section plp-products">
         <div class="vehicle-card">
           <div class="vehicle-card-img">
             <svg viewBox="0 0 200 110" class="bike-placeholder">
@@ -740,8 +914,8 @@
           </div>
           <div class="vehicle-price"><div class="price-from">Starting at</div><div class="price-amount">₹ 46,850/-</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
-            <a href="#" class="btn-primary-sm">Test Ride</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
+            <button type="button" class="btn-primary-sm btn-test-ride">Test Ride</button>
           </div>
         </div>
       </div>
@@ -749,7 +923,7 @@
 
     <!-- Three Wheelers -->
     <div class="tab-pane" id="tab-threewheelers">
-      <div class="vehicle-cards">
+      <div class="vehicle-cards featured-products products-section plp-products">
         <div class="vehicle-card">
           <div class="vehicle-card-img">
             <svg viewBox="0 0 200 110" class="bike-placeholder">
@@ -767,7 +941,7 @@
           </div>
           <div class="vehicle-price"><div class="price-amount" style="font-size:12px">Contact local dealer</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
           </div>
         </div>
         <div class="vehicle-card">
@@ -786,7 +960,7 @@
           </div>
           <div class="vehicle-price"><div class="price-amount" style="font-size:12px">Contact local dealer</div></div>
           <div class="vehicle-cta">
-            <a href="#" class="btn-outline">Know More</a>
+            <button type="button" class="btn-outline btn-book-now">Book Now</button>
           </div>
         </div>
       </div>
@@ -979,7 +1153,7 @@
 </section>
 
 <!-- ===== FOOTER ===== -->
-<footer>
+<footer class="footer site-footer">
   <div class="footer-top">
     <div class="footer-logo">
       <svg width="100" height="28" viewBox="0 0 100 28"><text x="0" y="22" font-family="Arial" font-size="20" font-weight="900" fill="#004A8F">TVS</text><path d="M38 5 L40 5 L50 20 L48 20 Z" fill="#E31E24"/></svg>
@@ -1071,7 +1245,7 @@
         <h4>Shop</h4>
         <ul>
           <li>
-  <a href="https://shoptvsmotor.vercel.app/shop.html" target="_blank">
+  <a href="file:///C:/Users/SHUBHAM/Downloads/accessories_updated.html" target="_blank">
     Accessories
   </a>
 </li>
@@ -1125,7 +1299,75 @@
   </div>
 </footer>
 
+<div id="bookSuccessToast" class="success-toast" role="alert" aria-live="polite">
+  <strong>Successfully Booked!</strong>
+  <span id="bookToastMsg">Your vehicle booking has been confirmed.</span>
+</div>
+
+<div id="testRideModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-labelledby="testRideTitle">
+    <button type="button" class="modal-close" id="testRideModalClose" aria-label="Close">&times;</button>
+    <div id="testRideFormView">
+      <h2 id="testRideTitle">Book a Test Ride</h2>
+      <p class="modal-vehicle" id="testRideVehicleLabel"></p>
+      <form id="testRideForm" class="modal-form" novalidate>
+        <input type="hidden" name="vehicle" id="testRideVehicleInput">
+        <label for="trName">Full Name *</label>
+        <input type="text" id="trName" name="fullName" required placeholder="Your full name">
+        <label for="trEmail">Email *</label>
+        <input type="email" id="trEmail" name="email" required placeholder="you@email.com">
+        <label for="trPhone">Mobile Number *</label>
+        <input type="tel" id="trPhone" name="phone" required pattern="[0-9]{10}" placeholder="10-digit mobile">
+        <label for="trCity">City *</label>
+        <select id="trCity" name="city" required>
+          <option value="">Select city</option>
+          <option>Delhi</option>
+          <option>Mumbai</option>
+          <option>Bangalore</option>
+          <option>Chennai</option>
+          <option>Hyderabad</option>
+          <option>Kolkata</option>
+          <option>Pune</option>
+          <option>Jaipur</option>
+          <option>Ahmedabad</option>
+          <option>Other</option>
+        </select>
+        <label for="trDate">Preferred Date *</label>
+        <input type="date" id="trDate" name="preferredDate" required>
+        <label for="trPincode">Pincode</label>
+        <input type="text" id="trPincode" name="pincode" pattern="[0-9]{6}" placeholder="6-digit pincode">
+        <label for="trMessage">Additional notes</label>
+        <textarea id="trMessage" name="message" placeholder="Preferred time slot, dealer preference, etc."></textarea>
+        <button type="submit" class="modal-submit">Confirm Test Ride</button>
+      </form>
+    </div>
+    <div id="testRideSuccessView" class="modal-success" hidden>
+      <div class="ok-icon">✓</div>
+      <h3>Test Ride Booked Successfully!</h3>
+      <p id="testRideSuccessMsg">We will contact you shortly to confirm your test ride.</p>
+      <button type="button" class="modal-submit" id="testRideDoneBtn" style="margin-top:16px">Done</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  function pushCategoryDataLayer(tabId) {
+    var cat = window.TVS_VEHICLE_CATALOG.categories[tabId];
+    if (!cat) return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "category_view",
+      MCP: {
+        pageType: "Category",
+        itemListId: cat.itemListId,
+        itemListName: cat.itemListName,
+        currency: window.TVS_VEHICLE_CATALOG.currency,
+        vehicleCatalog: window.TVS_VEHICLE_CATALOG,
+        items: getCatalogItemsByCategory(tabId)
+      }
+    });
+  }
+
   // Hero slider
   let currentSlide = 0;
   const slides = document.querySelectorAll('.hero-slide');
@@ -1149,7 +1391,154 @@
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
+    pushCategoryDataLayer(tabId);
   }
+
+  var bookToastTimer;
+  var testRideModal = document.getElementById('testRideModal');
+  var testRideForm = document.getElementById('testRideForm');
+  var testRideFormView = document.getElementById('testRideFormView');
+  var testRideSuccessView = document.getElementById('testRideSuccessView');
+
+  function getVehicleFromCard(card) {
+    if (!card) return { name: 'TVS Vehicle', price: '' };
+    var h3 = card.querySelector('h3');
+    var priceEl = card.querySelector('.price-amount');
+    return {
+      name: h3 ? h3.textContent.trim() : 'TVS Vehicle',
+      price: priceEl ? priceEl.textContent.trim() : ''
+    };
+  }
+
+  function pushBookingEvent(eventName, vehicle, extra) {
+    var catalogItem = findCatalogVehicle(vehicle.name);
+    var itemId = catalogItem ? catalogItem.id : vehicle.name.toLowerCase().replace(/\s+/g, '-');
+    var pageType = eventName === 'test_ride_booked' ? 'TestRide' : 'Booking';
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: eventName,
+      MCP: Object.assign({
+        pageType: pageType,
+        currency: window.TVS_VEHICLE_CATALOG.currency,
+        Item: {
+          id: itemId,
+          name: vehicle.name,
+          price: catalogItem ? catalogItem.price : 0,
+          category: catalogItem ? catalogItem.category : '',
+          imageUrl: catalogItem ? (catalogItem.imageUrl || '') : '',
+          availability: catalogItem ? catalogItem.availability : 'InStock'
+        }
+      }, extra || {})
+    });
+  }
+
+  function showBookSuccessToast(vehicleName) {
+    var toast = document.getElementById('bookSuccessToast');
+    document.getElementById('bookToastMsg').textContent =
+      vehicleName + ' has been successfully booked. Our team will reach out soon.';
+    toast.classList.add('show');
+    clearTimeout(bookToastTimer);
+    bookToastTimer = setTimeout(function () { toast.classList.remove('show'); }, 4500);
+  }
+
+  function openTestRideModal(vehicle) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'test_ride_form_open',
+      MCP: {
+        pageType: 'TestRide',
+        currency: window.TVS_VEHICLE_CATALOG.currency,
+        Item: { id: (findCatalogVehicle(vehicle.name) || {}).id || '', name: vehicle.name }
+      }
+    });
+    document.getElementById('testRideVehicleLabel').textContent = 'Vehicle: ' + vehicle.name;
+    document.getElementById('testRideVehicleInput').value = vehicle.name;
+    testRideFormView.hidden = false;
+    testRideSuccessView.hidden = true;
+    testRideForm.reset();
+    document.getElementById('testRideVehicleInput').value = vehicle.name;
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('trDate').setAttribute('min', today);
+    testRideModal.classList.add('open');
+    testRideModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeTestRideModal() {
+    testRideModal.classList.remove('open');
+    testRideModal.setAttribute('aria-hidden', 'true');
+  }
+
+  document.addEventListener('click', function (e) {
+    var bookBtn = e.target.closest('.btn-book-now');
+    if (bookBtn) {
+      e.preventDefault();
+      var vehicle = getVehicleFromCard(bookBtn.closest('.vehicle-card'));
+      window.setTVSUserBookedBike(vehicle.name);
+      pushBookingEvent('vehicle_booked', vehicle, {
+        bookingType: 'Book Now',
+        user: {
+          attributes: {
+            bikeName: vehicle.name,
+            bookedBikeName: vehicle.name
+          }
+        }
+      });
+      showBookSuccessToast(vehicle.name);
+      return;
+    }
+    var testBtn = e.target.closest('.btn-test-ride');
+    if (testBtn) {
+      e.preventDefault();
+      openTestRideModal(getVehicleFromCard(testBtn.closest('.vehicle-card')));
+    }
+  });
+
+  document.getElementById('testRideModalClose').addEventListener('click', closeTestRideModal);
+  document.getElementById('testRideDoneBtn').addEventListener('click', closeTestRideModal);
+  testRideModal.addEventListener('click', function (e) {
+    if (e.target === testRideModal) closeTestRideModal();
+  });
+
+  testRideForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!testRideForm.checkValidity()) {
+      testRideForm.reportValidity();
+      return;
+    }
+    var fd = new FormData(testRideForm);
+    var payload = {
+      vehicle: fd.get('vehicle'),
+      fullName: fd.get('fullName'),
+      email: fd.get('email'),
+      phone: fd.get('phone'),
+      city: fd.get('city'),
+      preferredDate: fd.get('preferredDate'),
+      pincode: fd.get('pincode') || '',
+      message: fd.get('message') || ''
+    };
+    window.TVS_TEST_RIDE_LEADS = window.TVS_TEST_RIDE_LEADS || [];
+    window.TVS_TEST_RIDE_LEADS.push(Object.assign({ submittedAt: new Date().toISOString() }, payload));
+    pushBookingEvent('test_ride_booked', { name: payload.vehicle, price: '' }, {
+      bookingType: 'Test Ride',
+      user: {
+        identities: { emailAddress: payload.email },
+        attributes: {
+          firstName: payload.fullName,
+          phone: payload.phone,
+          city: payload.city,
+          postalCode: payload.pincode,
+          preferredDate: payload.preferredDate,
+          vehicle: payload.vehicle,
+          notes: payload.message
+        }
+      }
+    });
+    document.getElementById('testRideSuccessMsg').textContent =
+      'Your test ride for ' + payload.vehicle + ' on ' + payload.preferredDate +
+      ' is confirmed. We will call you at ' + payload.phone + '.';
+    testRideFormView.hidden = true;
+    testRideSuccessView.hidden = false;
+  });
 </script>
 </body>
 </html>
