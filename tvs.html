@@ -165,8 +165,11 @@
     window.TVS_USER_PROFILE.testDrivePreferredDate = payload.preferredDate || "";
     window.TVS_USER_PROFILE.testDriveNotes = payload.message || "";
     try {
-      localStorage.setItem("tvs_confirmedTestDriveBike", bikeName);
-      if (payload.pid) localStorage.setItem("tvs_testDrivePid", payload.pid);
+      var loggedIn = !!JSON.parse(localStorage.getItem("tvs_current_user") || "null");
+      if (!loggedIn) {
+        localStorage.setItem("tvs_confirmedTestDriveBike", bikeName);
+        if (payload.pid) localStorage.setItem("tvs_testDrivePid", payload.pid);
+      }
     } catch (e) { /* private mode */ }
   };
 
@@ -1530,6 +1533,58 @@
   var testRideForm = document.getElementById('testRideForm');
   var testRideFormView = document.getElementById('testRideFormView');
   var testRideSuccessView = document.getElementById('testRideSuccessView');
+  var TVS_TEST_RIDE_DRAFT_KEY = "tvs_test_ride_draft";
+
+  function isUserLoggedIn() {
+    try {
+      var user = JSON.parse(localStorage.getItem("tvs_current_user") || "null");
+      return !!(user && user.email);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearTestRideStoredDetails() {
+    try {
+      localStorage.removeItem(TVS_TEST_RIDE_DRAFT_KEY);
+      localStorage.removeItem("tvs_confirmedTestDriveBike");
+      localStorage.removeItem("tvs_testDrivePid");
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveTestRideDraft(data) {
+    try {
+      localStorage.setItem(TVS_TEST_RIDE_DRAFT_KEY, JSON.stringify(data));
+    } catch (e) { /* ignore */ }
+  }
+
+  function loadTestRideDraft() {
+    try {
+      return JSON.parse(localStorage.getItem(TVS_TEST_RIDE_DRAFT_KEY) || "null");
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function clearTestRideFormFields() {
+    document.getElementById("trName").value = "";
+    document.getElementById("trEmail").value = "";
+    document.getElementById("trPhone").value = "";
+    document.getElementById("trCity").value = "";
+    document.getElementById("trDate").value = "";
+    document.getElementById("trPincode").value = "";
+    document.getElementById("trMessage").value = "";
+  }
+
+  function applyTestRideDraft(draft) {
+    if (!draft) return;
+    document.getElementById("trName").value = draft.fullName || "";
+    document.getElementById("trEmail").value = draft.email || "";
+    document.getElementById("trPhone").value = draft.phone || "";
+    document.getElementById("trCity").value = draft.city || "";
+    document.getElementById("trPincode").value = draft.pincode || "";
+    document.getElementById("trMessage").value = draft.message || "";
+  }
 
   function getVehicleFromCard(card) {
     if (!card) return { pid: "", id: "", name: "TVS Vehicle", price: 0, priceDisplay: "" };
@@ -1628,6 +1683,12 @@
     document.getElementById("testRideVehicleInput").value = product.name;
     document.getElementById("testRidePidInput").value = product.pid || product.id || "";
     document.getElementById("testRideProductJson").value = JSON.stringify(product);
+    if (isUserLoggedIn()) {
+      clearTestRideStoredDetails();
+      clearTestRideFormFields();
+    } else {
+      applyTestRideDraft(loadTestRideDraft());
+    }
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('trDate').setAttribute('min', today);
     testRideModal.classList.add('open');
@@ -1702,8 +1763,21 @@
     };
     window.TVS_TEST_RIDE_LEADS = window.TVS_TEST_RIDE_LEADS || [];
     window.TVS_TEST_RIDE_LEADS.push(Object.assign({ submittedAt: new Date().toISOString() }, payload));
+    if (isUserLoggedIn()) {
+      clearTestRideStoredDetails();
+    } else {
+      saveTestRideDraft({
+        fullName: payload.fullName,
+        email: payload.email,
+        phone: payload.phone,
+        city: payload.city,
+        pincode: payload.pincode,
+        message: payload.message
+      });
+    }
     window.setTVSConfirmedTestDrive({
       bikeName: payload.vehicle,
+      pid: payload.pid,
       fullName: payload.fullName,
       email: payload.email,
       phone: payload.phone,
@@ -1773,13 +1847,20 @@
     try { localStorage.removeItem(TVS_AUTH_KEY); } catch (e) { /* ignore */ }
   }
 
-  function pushAuthDataLayer(eventName, user, pageType) {
+  var lastAuthDataLayerAt = {};
+
+  function pushAuthDataLayer(eventName, user) {
+    var dedupeKey = eventName + ":" + (user && user.email ? user.email : "");
+    var now = Date.now();
+    if (lastAuthDataLayerAt[dedupeKey] && now - lastAuthDataLayerAt[dedupeKey] < 800) return;
+    lastAuthDataLayerAt[dedupeKey] = now;
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: eventName,
       MCP: {
-        pageType: pageType || "login",
-        pageName: pageType === "signup" ? "Sign Up" : "Sign In"
+        pageType: "Home",
+        pageName: "Home",
+        authAction: eventName.replace("user_", "")
       },
       user: {
         identities: { emailAddress: user.email },
@@ -1826,8 +1907,15 @@
   }
 
   openAuthBtn.addEventListener("click", function () {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: "auth_modal_open", MCP: { pageType: "login", pageName: "Sign In" } });
+    var now = Date.now();
+    if (!lastAuthDataLayerAt.auth_modal_open || now - lastAuthDataLayerAt.auth_modal_open >= 800) {
+      lastAuthDataLayerAt.auth_modal_open = now;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "auth_modal_open",
+        MCP: { pageType: "Home", pageName: "Home", authAction: "modal_open" }
+      });
+    }
     openAuthModal("login");
   });
   document.getElementById("authModalClose").addEventListener("click", closeAuthModal);
@@ -1850,7 +1938,8 @@
     }
     var session = { name: found.name, email: found.email, phone: found.phone, city: found.city || "", marketingOptIn: !!found.marketingOptIn };
     setCurrentUser(session);
-    pushAuthDataLayer("user_login", session, "login");
+    clearTestRideStoredDetails();
+    pushAuthDataLayer("user_login", session);
     updateAuthUI();
     closeAuthModal();
     loginForm.reset();
@@ -1882,7 +1971,8 @@
     saveRegisteredUsers(users);
     var session = { name: name, email: email, phone: phone, city: city, marketingOptIn: marketingOptIn };
     setCurrentUser(session);
-    pushAuthDataLayer("user_signup", session, "signup");
+    clearTestRideStoredDetails();
+    pushAuthDataLayer("user_signup", session);
     updateAuthUI();
     closeAuthModal();
     signupForm.reset();
@@ -1891,11 +1981,15 @@
   document.getElementById("logoutBtn").addEventListener("click", function () {
     clearCurrentUser();
     updateAuthUI();
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "user_logout",
-      MCP: { pageType: "logout", pageName: "Logged Out" }
-    });
+    var now = Date.now();
+    if (!lastAuthDataLayerAt.user_logout || now - lastAuthDataLayerAt.user_logout >= 800) {
+      lastAuthDataLayerAt.user_logout = now;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "user_logout",
+        MCP: { pageType: "Home", pageName: "Home", authAction: "logout" }
+      });
+    }
   });
 
   updateAuthUI();
