@@ -1442,7 +1442,7 @@
     <div id="testRideFormView">
       <h2 id="testRideTitle">Book a Test Ride</h2>
       <p class="modal-vehicle" id="testRideVehicleLabel"></p>
-      <form id="testRideForm" class="modal-form" novalidate>
+      <form id="testRideForm" class="modal-form" novalidate autocomplete="off">
         <input type="hidden" name="vehicle" id="testRideVehicleInput">
         <input type="hidden" name="pid" id="testRidePidInput">
         <input type="hidden" name="productJson" id="testRideProductJson">
@@ -1534,14 +1534,54 @@
   var testRideFormView = document.getElementById('testRideFormView');
   var testRideSuccessView = document.getElementById('testRideSuccessView');
   var TVS_TEST_RIDE_DRAFT_KEY = "tvs_test_ride_draft";
+  var TVS_AUTH_KEY = "tvs_current_user";
+  var TVS_USERS_KEY = "tvs_registered_users";
+
+  function getRegisteredUsers() {
+    try { return JSON.parse(localStorage.getItem(TVS_USERS_KEY) || "[]"); } catch (e) { return []; }
+  }
+
+  function getActiveUser() {
+    if (window.TVS_CURRENT_USER && (window.TVS_CURRENT_USER.email || window.TVS_CURRENT_USER.name)) {
+      return window.TVS_CURRENT_USER;
+    }
+    try {
+      var stored = JSON.parse(localStorage.getItem(TVS_AUTH_KEY) || "null");
+      if (stored && (stored.email || stored.name)) {
+        window.TVS_CURRENT_USER = stored;
+        return stored;
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function getFullUserProfile() {
+    var session = getActiveUser();
+    if (!session) return null;
+    if (session.email) {
+      var users = getRegisteredUsers();
+      var email = session.email.toLowerCase();
+      for (var i = 0; i < users.length; i++) {
+        if (users[i].email && users[i].email.toLowerCase() === email) {
+          return {
+            name: users[i].name || session.name || "",
+            email: users[i].email || session.email || "",
+            phone: users[i].phone || session.phone || "",
+            city: users[i].city || session.city || ""
+          };
+        }
+      }
+    }
+    return {
+      name: session.name || "",
+      email: session.email || "",
+      phone: session.phone || "",
+      city: session.city || ""
+    };
+  }
 
   function isUserLoggedIn() {
-    try {
-      var user = JSON.parse(localStorage.getItem("tvs_current_user") || "null");
-      return !!(user && user.email);
-    } catch (e) {
-      return false;
-    }
+    return !!getActiveUser();
   }
 
   function clearTestRideStoredDetails() {
@@ -1549,7 +1589,37 @@
       localStorage.removeItem(TVS_TEST_RIDE_DRAFT_KEY);
       localStorage.removeItem("tvs_confirmedTestDriveBike");
       localStorage.removeItem("tvs_testDrivePid");
+      sessionStorage.removeItem("tvs_test_ride_product");
     } catch (e) { /* ignore */ }
+  }
+
+  function clearTestRideProfileCache() {
+    if (!window.TVS_USER_PROFILE) return;
+    [
+      "confirmedTestDriveBike", "testDrivePid", "testDriveCustomerName",
+      "testDrivePhone", "testDriveEmail", "testDriveCity",
+      "testDrivePincode", "testDrivePreferredDate", "testDriveNotes"
+    ].forEach(function (key) { delete window.TVS_USER_PROFILE[key]; });
+  }
+
+  function setTestRideCityValue(city) {
+    var sel = document.getElementById("trCity");
+    if (!city || !sel) return;
+    var cityLower = String(city).trim().toLowerCase();
+    var matched = "";
+    Array.prototype.forEach.call(sel.options, function (opt) {
+      if (opt.value.toLowerCase() === cityLower || opt.text.toLowerCase() === cityLower) {
+        matched = opt.value;
+      }
+    });
+    sel.value = matched;
+  }
+
+  function setFormField(id, value) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.value = value || "";
+    if ("defaultValue" in el) el.defaultValue = value || "";
   }
 
   function saveTestRideDraft(data) {
@@ -1581,9 +1651,34 @@
     document.getElementById("trName").value = draft.fullName || "";
     document.getElementById("trEmail").value = draft.email || "";
     document.getElementById("trPhone").value = draft.phone || "";
-    document.getElementById("trCity").value = draft.city || "";
+    setTestRideCityValue(draft.city || "");
     document.getElementById("trPincode").value = draft.pincode || "";
     document.getElementById("trMessage").value = draft.message || "";
+  }
+
+  function applyLoggedInUserToTestRideForm(user) {
+    clearTestRideFormFields();
+    if (!user) return;
+    setFormField("trName", user.name);
+    setFormField("trEmail", user.email);
+    setFormField("trPhone", user.phone);
+    setTestRideCityValue(user.city || "");
+  }
+
+  function populateTestRideCustomerFields() {
+    if (isUserLoggedIn()) {
+      clearTestRideStoredDetails();
+      clearTestRideProfileCache();
+      applyLoggedInUserToTestRideForm(getFullUserProfile());
+      testRideForm.setAttribute("autocomplete", "off");
+      ["trName", "trEmail", "trPhone", "trPincode", "trMessage"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute("autocomplete", "off");
+      });
+    } else {
+      testRideForm.setAttribute("autocomplete", "on");
+      applyTestRideDraft(loadTestRideDraft());
+    }
   }
 
   function getVehicleFromCard(card) {
@@ -1683,16 +1778,19 @@
     document.getElementById("testRideVehicleInput").value = product.name;
     document.getElementById("testRidePidInput").value = product.pid || product.id || "";
     document.getElementById("testRideProductJson").value = JSON.stringify(product);
-    if (isUserLoggedIn()) {
-      clearTestRideStoredDetails();
-      clearTestRideFormFields();
-    } else {
-      applyTestRideDraft(loadTestRideDraft());
-    }
+    populateTestRideCustomerFields();
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('trDate').setAttribute('min', today);
     testRideModal.classList.add('open');
     testRideModal.setAttribute('aria-hidden', 'false');
+    if (isUserLoggedIn()) {
+      requestAnimationFrame(function () {
+        populateTestRideCustomerFields();
+      });
+      setTimeout(function () {
+        populateTestRideCustomerFields();
+      }, 120);
+    }
   }
 
   function closeTestRideModal() {
@@ -1822,19 +1920,13 @@
   var openAuthBtn = document.getElementById("openAuthBtn");
   var navUserBar = document.getElementById("navUserBar");
   var navUserName = document.getElementById("navUserName");
-  var TVS_AUTH_KEY = "tvs_current_user";
-  var TVS_USERS_KEY = "tvs_registered_users";
-
-  function getRegisteredUsers() {
-    try { return JSON.parse(localStorage.getItem(TVS_USERS_KEY) || "[]"); } catch (e) { return []; }
-  }
 
   function saveRegisteredUsers(users) {
     try { localStorage.setItem(TVS_USERS_KEY, JSON.stringify(users)); } catch (e) { /* ignore */ }
   }
 
   function getCurrentUser() {
-    try { return JSON.parse(localStorage.getItem(TVS_AUTH_KEY) || "null"); } catch (e) { return null; }
+    return getActiveUser();
   }
 
   function setCurrentUser(user) {
@@ -1930,7 +2022,9 @@
     var email = document.getElementById("loginEmail").value.trim().toLowerCase();
     var password = document.getElementById("loginPassword").value;
     var users = getRegisteredUsers();
-    var found = users.find(function (u) { return u.email === email && u.password === password; });
+    var found = users.find(function (u) {
+      return u.email && u.email.toLowerCase() === email && u.password === password;
+    });
     if (!found) {
       alert("Invalid email or password. Please sign up first.");
       switchAuthTab("signup");
@@ -1939,6 +2033,7 @@
     var session = { name: found.name, email: found.email, phone: found.phone, city: found.city || "", marketingOptIn: !!found.marketingOptIn };
     setCurrentUser(session);
     clearTestRideStoredDetails();
+    clearTestRideProfileCache();
     pushAuthDataLayer("user_login", session);
     updateAuthUI();
     closeAuthModal();
@@ -1972,6 +2067,7 @@
     var session = { name: name, email: email, phone: phone, city: city, marketingOptIn: marketingOptIn };
     setCurrentUser(session);
     clearTestRideStoredDetails();
+    clearTestRideProfileCache();
     pushAuthDataLayer("user_signup", session);
     updateAuthUI();
     closeAuthModal();
@@ -1992,8 +2088,8 @@
     }
   });
 
+  getActiveUser();
   updateAuthUI();
-  if (getCurrentUser()) window.TVS_CURRENT_USER = getCurrentUser();
 </script>
 </body>
 </html>
