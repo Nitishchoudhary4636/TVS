@@ -1665,6 +1665,19 @@
     setTestRideCityValue(user.city || "");
   }
 
+  function resetTestRideCustomerForm() {
+    clearTestRideFormFields();
+    ["trName", "trEmail", "trPhone", "trPincode", "trMessage"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.value = "";
+      if ("defaultValue" in el) el.defaultValue = "";
+      el.removeAttribute("readonly");
+    });
+    var cityEl = document.getElementById("trCity");
+    if (cityEl) cityEl.value = "";
+  }
+
   function populateTestRideCustomerFields() {
     if (isUserLoggedIn()) {
       clearTestRideStoredDetails();
@@ -1676,9 +1689,26 @@
         if (el) el.setAttribute("autocomplete", "off");
       });
     } else {
-      testRideForm.setAttribute("autocomplete", "on");
-      applyTestRideDraft(loadTestRideDraft());
+      testRideForm.setAttribute("autocomplete", "off");
+      resetTestRideCustomerForm();
+      var draft = loadTestRideDraft();
+      if (draft) {
+        applyTestRideDraft(draft);
+      } else {
+        ["trName", "trEmail", "trPhone", "trPincode", "trMessage"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.setAttribute("autocomplete", "nope");
+        });
+      }
     }
+  }
+
+  function resetTestRideFormOnLogout() {
+    resetTestRideCustomerForm();
+    if (testRideForm) testRideForm.reset();
+    testRideFormView.hidden = false;
+    testRideSuccessView.hidden = true;
+    closeTestRideModal();
   }
 
   function getVehicleFromCard(card) {
@@ -1783,14 +1813,12 @@
     document.getElementById('trDate').setAttribute('min', today);
     testRideModal.classList.add('open');
     testRideModal.setAttribute('aria-hidden', 'false');
-    if (isUserLoggedIn()) {
-      requestAnimationFrame(function () {
-        populateTestRideCustomerFields();
-      });
-      setTimeout(function () {
-        populateTestRideCustomerFields();
-      }, 120);
-    }
+    requestAnimationFrame(function () {
+      populateTestRideCustomerFields();
+    });
+    setTimeout(function () {
+      populateTestRideCustomerFields();
+    }, 120);
   }
 
   function closeTestRideModal() {
@@ -2076,6 +2104,8 @@
 
   document.getElementById("logoutBtn").addEventListener("click", function () {
     clearCurrentUser();
+    clearTestRideProfileCache();
+    resetTestRideFormOnLogout();
     updateAuthUI();
     var now = Date.now();
     if (!lastAuthDataLayerAt.user_logout || now - lastAuthDataLayerAt.user_logout >= 800) {
