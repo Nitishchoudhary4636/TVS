@@ -168,30 +168,6 @@
       localStorage.setItem("tvs_confirmedTestDriveBike", bikeName);
       if (payload.pid) localStorage.setItem("tvs_testDrivePid", payload.pid);
     } catch (e) { /* private mode */ }
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "confirmed_test_drive",
-      user: {
-        identities: { emailAddress: payload.email || "" },
-        attributes: {
-          confirmedTestDriveBike: bikeName,
-          testDrivePid: payload.pid || "",
-          testDriveCustomerName: payload.fullName || "",
-          testDrivePhone: payload.phone || "",
-          testDriveEmail: payload.email || "",
-          testDriveCity: payload.city || "",
-          testDrivePincode: payload.pincode || "",
-          testDrivePreferredDate: payload.preferredDate || "",
-          testDriveNotes: payload.message || ""
-        }
-      },
-      MCP: {
-        pageType: "TestRide",
-        confirmedTestDriveBike: bikeName,
-        pid: payload.pid || "",
-        Item: payload.product || null
-      }
-    });
   };
 
   /** Confirmed Book Now — stores booked bike + pid + full product */
@@ -211,30 +187,6 @@
       if (pid) localStorage.setItem("tvs_bookedPid", pid);
       localStorage.setItem("tvs_lastBookedProduct", JSON.stringify(product));
     } catch (e) { /* private mode */ }
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "confirmed_booking",
-      user: {
-        attributes: {
-          confirmedBookedBike: name,
-          bookedPid: pid
-        }
-      },
-      MCP: {
-        pageType: "Booking",
-        confirmedBookedBike: name,
-        pid: pid,
-        Item: {
-          id: pid,
-          name: name,
-          price: product.price || 0,
-          category: product.category || "",
-          imageUrl: product.imageUrl || "",
-          availability: product.availability || "InStock",
-          specs: product.specs || {}
-        }
-      }
-    });
   };
 
   window.dataLayer = window.dataLayer || [];
@@ -1599,20 +1551,23 @@
   }
 
   function pushBookingEvent(eventName, product, extra) {
-    var pid = product.pid || product.id || "";
+    extra = extra || {};
+    var pid = product.pid || product.id || extra.pid || "";
     if (!pid && product.name) {
       var cat = findCatalogVehicle(product.name);
       if (cat) pid = cat.id;
     }
     if (!pid && product.name) pid = product.name.toLowerCase().replace(/\s+/g, "-");
     var pageType = eventName === "test_ride_booked" ? "TestRide" : "Booking";
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
+    var payload = {
       event: eventName,
-      MCP: Object.assign({
+      MCP: {
         pageType: pageType,
         currency: window.TVS_VEHICLE_CATALOG.currency,
         pid: pid,
+        bookingType: extra.bookingType || "",
+        confirmedBookedBike: extra.confirmedBookedBike || "",
+        confirmedTestDriveBike: extra.confirmedTestDriveBike || "",
         Item: {
           id: pid,
           name: product.name,
@@ -1627,8 +1582,11 @@
           battery: product.battery || "",
           specs: product.specs || {}
         }
-      }, extra || {})
-    });
+      }
+    };
+    if (extra.user) payload.user = extra.user;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(payload);
   }
 
   function showBookSuccessToast(vehicleName) {
@@ -1687,6 +1645,10 @@
       e.preventDefault();
       var product = getVehicleFromCard(bookBtn.closest(".vehicle-card"));
       window.setTVSUserBookedBike(product);
+      try {
+        sessionStorage.setItem("tvs_book_now_clicked", "1");
+        sessionStorage.setItem("tvs_selected_vehicle", JSON.stringify(product));
+      } catch (err) { /* private mode */ }
       pushBookingEvent("vehicle_booked", product, {
         bookingType: "Book Now",
         confirmedBookedBike: product.name,
@@ -1863,7 +1825,11 @@
     signupForm.hidden = tab !== "signup";
   }
 
-  openAuthBtn.addEventListener("click", function () { openAuthModal("login"); });
+  openAuthBtn.addEventListener("click", function () {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "auth_modal_open", MCP: { pageType: "login", pageName: "Sign In" } });
+    openAuthModal("login");
+  });
   document.getElementById("authModalClose").addEventListener("click", closeAuthModal);
   authModal.addEventListener("click", function (e) { if (e.target === authModal) closeAuthModal(); });
   document.querySelectorAll(".auth-tab").forEach(function (btn) {
