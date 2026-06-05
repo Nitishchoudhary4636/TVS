@@ -482,6 +482,25 @@
     border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer;
   }
   .modal-submit:hover { background: #003a72; }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--tvs-border); }
+  .auth-tab {
+    flex: 1; padding: 10px; border: none; background: none; font-size: 14px; font-weight: 700;
+    color: var(--text-gray); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  }
+  .auth-tab.active { color: var(--tvs-blue); border-bottom-color: var(--tvs-blue); }
+  .nav-auth { display: flex; align-items: center; gap: 8px; }
+  .nav-auth-btn {
+    padding: 6px 14px; border: 1.5px solid var(--tvs-blue); border-radius: 4px;
+    background: #fff; color: var(--tvs-blue); font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .nav-auth-btn:hover { background: var(--tvs-blue); color: #fff; }
+  .nav-user-bar { display: flex; align-items: center; gap: 10px; }
+  .nav-user-name { font-size: 13px; font-weight: 700; color: var(--tvs-blue); white-space: nowrap; }
+  .nav-logout-btn {
+    padding: 5px 12px; border: 1px solid var(--tvs-border); border-radius: 4px;
+    background: #fff; color: var(--text-gray); font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .nav-logout-btn:hover { border-color: var(--tvs-red); color: var(--tvs-red); }
   .modal-success { text-align: center; padding: 20px 0; }
   .modal-success .ok-icon { font-size: 48px; margin-bottom: 12px; }
   .modal-success h3 { font-size: 18px; font-weight: 800; color: #0d7a3e; margin-bottom: 8px; }
@@ -691,7 +710,13 @@
       <a href="#" class="nav-cta">📍 Dealers</a>
       <div class="country-flag"><span>🇮🇳</span> India ▾</div>
       <a href="#" class="nav-icon">🔍</a>
-      <a href="#" class="nav-icon">👤</a>
+      <div class="nav-auth" id="navAuth">
+        <button type="button" class="nav-auth-btn" id="openAuthBtn">Login</button>
+        <div class="nav-user-bar" id="navUserBar" hidden>
+          <span class="nav-user-name" id="navUserName"></span>
+          <button type="button" class="nav-logout-btn" id="logoutBtn">Log out</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -1414,6 +1439,44 @@
   </div>
 </footer>
 
+<div id="authModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-labelledby="authModalTitle">
+    <button type="button" class="modal-close" id="authModalClose" aria-label="Close">&times;</button>
+    <h2 id="authModalTitle">Welcome to TVS</h2>
+    <p class="modal-vehicle">Login or create an account to book vehicles and test rides.</p>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-auth-tab="login">Login</button>
+      <button type="button" class="auth-tab" data-auth-tab="signup">Sign Up</button>
+    </div>
+    <form id="loginForm" class="modal-form" novalidate>
+      <label for="loginEmail">Email *</label>
+      <input type="email" id="loginEmail" name="email" required placeholder="you@email.com">
+      <label for="loginPassword">Password *</label>
+      <input type="password" id="loginPassword" name="password" required minlength="6" placeholder="Your password">
+      <button type="submit" class="modal-submit">Login</button>
+    </form>
+    <form id="signupForm" class="modal-form" novalidate hidden>
+      <label for="signupName">Full Name *</label>
+      <input type="text" id="signupName" name="name" required placeholder="Your full name">
+      <label for="signupEmail">Email *</label>
+      <input type="email" id="signupEmail" name="email" required placeholder="you@email.com">
+      <label for="signupPhone">Mobile *</label>
+      <input type="tel" id="signupPhone" name="phone" required pattern="[0-9]{10}" placeholder="10-digit mobile">
+      <label for="signupCity">City</label>
+      <input type="text" id="signupCity" name="city" placeholder="Your city">
+      <label for="signupPassword">Password *</label>
+      <input type="password" id="signupPassword" name="password" required minlength="6" placeholder="Min 6 characters">
+      <label for="signupConfirm">Confirm Password *</label>
+      <input type="password" id="signupConfirm" name="confirmPassword" required minlength="6" placeholder="Re-enter password">
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-bottom:14px">
+        <input type="checkbox" id="chkOffersChecked" name="marketingOptIn" style="width:auto;margin:0">
+        Send me offers and updates
+      </label>
+      <button type="submit" class="modal-submit">Create Account</button>
+    </form>
+  </div>
+</div>
+
 <div id="bookSuccessToast" class="success-toast" role="alert" aria-live="polite">
   <strong>Successfully Booked!</strong>
   <span id="bookToastMsg">Your vehicle booking has been confirmed.</span>
@@ -1717,6 +1780,158 @@
   });
 
   hydrateVehicleCards();
+
+  var authModal = document.getElementById("authModal");
+  var loginForm = document.getElementById("loginForm");
+  var signupForm = document.getElementById("signupForm");
+  var openAuthBtn = document.getElementById("openAuthBtn");
+  var navUserBar = document.getElementById("navUserBar");
+  var navUserName = document.getElementById("navUserName");
+  var TVS_AUTH_KEY = "tvs_current_user";
+  var TVS_USERS_KEY = "tvs_registered_users";
+
+  function getRegisteredUsers() {
+    try { return JSON.parse(localStorage.getItem(TVS_USERS_KEY) || "[]"); } catch (e) { return []; }
+  }
+
+  function saveRegisteredUsers(users) {
+    try { localStorage.setItem(TVS_USERS_KEY, JSON.stringify(users)); } catch (e) { /* ignore */ }
+  }
+
+  function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem(TVS_AUTH_KEY) || "null"); } catch (e) { return null; }
+  }
+
+  function setCurrentUser(user) {
+    window.TVS_CURRENT_USER = user;
+    try { localStorage.setItem(TVS_AUTH_KEY, JSON.stringify(user)); } catch (e) { /* ignore */ }
+  }
+
+  function clearCurrentUser() {
+    window.TVS_CURRENT_USER = null;
+    try { localStorage.removeItem(TVS_AUTH_KEY); } catch (e) { /* ignore */ }
+  }
+
+  function pushAuthDataLayer(eventName, user, pageType) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: eventName,
+      MCP: {
+        pageType: pageType || "login",
+        pageName: pageType === "signup" ? "Sign Up" : "Sign In"
+      },
+      user: {
+        identities: { emailAddress: user.email },
+        attributes: {
+          firstName: user.name,
+          phone: user.phone || "",
+          city: user.city || "",
+          marketingOptIn: !!user.marketingOptIn
+        }
+      }
+    });
+  }
+
+  function updateAuthUI() {
+    var user = getCurrentUser();
+    if (user && user.name) {
+      openAuthBtn.hidden = true;
+      navUserBar.hidden = false;
+      navUserName.textContent = user.name;
+    } else {
+      openAuthBtn.hidden = false;
+      navUserBar.hidden = true;
+      navUserName.textContent = "";
+    }
+  }
+
+  function openAuthModal(tab) {
+    authModal.classList.add("open");
+    authModal.setAttribute("aria-hidden", "false");
+    switchAuthTab(tab || "login");
+  }
+
+  function closeAuthModal() {
+    authModal.classList.remove("open");
+    authModal.setAttribute("aria-hidden", "true");
+  }
+
+  function switchAuthTab(tab) {
+    document.querySelectorAll(".auth-tab").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.authTab === tab);
+    });
+    loginForm.hidden = tab !== "login";
+    signupForm.hidden = tab !== "signup";
+  }
+
+  openAuthBtn.addEventListener("click", function () { openAuthModal("login"); });
+  document.getElementById("authModalClose").addEventListener("click", closeAuthModal);
+  authModal.addEventListener("click", function (e) { if (e.target === authModal) closeAuthModal(); });
+  document.querySelectorAll(".auth-tab").forEach(function (btn) {
+    btn.addEventListener("click", function () { switchAuthTab(btn.dataset.authTab); });
+  });
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!loginForm.checkValidity()) { loginForm.reportValidity(); return; }
+    var email = document.getElementById("loginEmail").value.trim().toLowerCase();
+    var password = document.getElementById("loginPassword").value;
+    var users = getRegisteredUsers();
+    var found = users.find(function (u) { return u.email === email && u.password === password; });
+    if (!found) {
+      alert("Invalid email or password. Please sign up first.");
+      switchAuthTab("signup");
+      return;
+    }
+    var session = { name: found.name, email: found.email, phone: found.phone, city: found.city || "", marketingOptIn: !!found.marketingOptIn };
+    setCurrentUser(session);
+    pushAuthDataLayer("user_login", session, "login");
+    updateAuthUI();
+    closeAuthModal();
+    loginForm.reset();
+  });
+
+  signupForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!signupForm.checkValidity()) { signupForm.reportValidity(); return; }
+    var name = document.getElementById("signupName").value.trim();
+    var email = document.getElementById("signupEmail").value.trim().toLowerCase();
+    var phone = document.getElementById("signupPhone").value.trim();
+    var city = document.getElementById("signupCity").value.trim();
+    var password = document.getElementById("signupPassword").value;
+    var confirm = document.getElementById("signupConfirm").value;
+    var marketingOptIn = document.getElementById("chkOffersChecked").checked;
+    if (password !== confirm) {
+      alert("Passwords do not match.");
+      return;
+    }
+    var users = getRegisteredUsers();
+    if (users.some(function (u) { return u.email === email; })) {
+      alert("Account already exists. Please login.");
+      switchAuthTab("login");
+      document.getElementById("loginEmail").value = email;
+      return;
+    }
+    var newUser = { name: name, email: email, phone: phone, city: city, password: password, marketingOptIn: marketingOptIn };
+    users.push(newUser);
+    saveRegisteredUsers(users);
+    var session = { name: name, email: email, phone: phone, city: city, marketingOptIn: marketingOptIn };
+    setCurrentUser(session);
+    pushAuthDataLayer("user_signup", session, "signup");
+    updateAuthUI();
+    closeAuthModal();
+    signupForm.reset();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    clearCurrentUser();
+    updateAuthUI();
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "user_logout", MCP: { pageType: "login", pageName: "Logged Out" } });
+  });
+
+  updateAuthUI();
+  if (getCurrentUser()) window.TVS_CURRENT_USER = getCurrentUser();
 </script>
 </body>
 </html>
