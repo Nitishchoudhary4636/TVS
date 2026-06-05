@@ -186,9 +186,12 @@
     window.TVS_USER_PROFILE.lastBookedProduct = product;
     window.TVS_USER_PROFILE.lastBookedAt = new Date().toISOString();
     try {
-      localStorage.setItem("tvs_confirmedBookedBike", name);
-      if (pid) localStorage.setItem("tvs_bookedPid", pid);
-      localStorage.setItem("tvs_lastBookedProduct", JSON.stringify(product));
+      var loggedIn = !!JSON.parse(localStorage.getItem("tvs_current_user") || "null");
+      if (!loggedIn) {
+        localStorage.setItem("tvs_confirmedBookedBike", name);
+        if (pid) localStorage.setItem("tvs_bookedPid", pid);
+        localStorage.setItem("tvs_lastBookedProduct", JSON.stringify(product));
+      }
     } catch (e) { /* private mode */ }
   };
 
@@ -329,7 +332,6 @@
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 40px; margin-bottom: 24px;
   }
-  .section-title { }
   .section-title .pre { font-size: 13px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
   .section-title h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 4px 0; }
   .section-title span { font-size: 14px; color: var(--tvs-blue); font-weight: 600; }
@@ -1432,9 +1434,52 @@
   </div>
 </div>
 
-<div id="bookSuccessToast" class="success-toast" role="alert" aria-live="polite">
-  <strong>Successfully Booked!</strong>
-  <span id="bookToastMsg">Your vehicle booking has been confirmed.</span>
+<div id="bookNowModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-labelledby="bookNowTitle">
+    <button type="button" class="modal-close" id="bookNowModalClose" aria-label="Close">&times;</button>
+    <div id="bookNowFormView">
+      <h2 id="bookNowTitle">Book Your Vehicle</h2>
+      <p class="modal-vehicle" id="bookNowVehicleLabel"></p>
+      <form id="bookNowForm" class="modal-form" novalidate autocomplete="off">
+        <input type="hidden" name="vehicle" id="bookNowVehicleInput">
+        <input type="hidden" name="pid" id="bookNowPidInput">
+        <input type="hidden" name="productJson" id="bookNowProductJson">
+        <label for="bnName">Full Name *</label>
+        <input type="text" id="bnName" name="fullName" required placeholder="Your full name">
+        <label for="bnEmail">Email *</label>
+        <input type="email" id="bnEmail" name="email" required placeholder="you@email.com">
+        <label for="bnPhone">Mobile Number *</label>
+        <input type="tel" id="bnPhone" name="phone" required pattern="[0-9]{10}" placeholder="10-digit mobile">
+        <label for="bnCity">City *</label>
+        <select id="bnCity" name="city" required>
+          <option value="">Select city</option>
+          <option>Delhi</option>
+          <option>Mumbai</option>
+          <option>Bangalore</option>
+          <option>Chennai</option>
+          <option>Hyderabad</option>
+          <option>Kolkata</option>
+          <option>Pune</option>
+          <option>Jaipur</option>
+          <option>Ahmedabad</option>
+          <option>Other</option>
+        </select>
+        <label for="bnDate">Preferred Delivery Date *</label>
+        <input type="date" id="bnDate" name="preferredDate" required>
+        <label for="bnPincode">Pincode</label>
+        <input type="text" id="bnPincode" name="pincode" pattern="[0-9]{6}" placeholder="6-digit pincode">
+        <label for="bnMessage">Additional notes</label>
+        <textarea id="bnMessage" name="message" placeholder="Colour preference, finance option, etc."></textarea>
+        <button type="submit" class="modal-submit">Confirm Booking</button>
+      </form>
+    </div>
+    <div id="bookNowSuccessView" class="modal-success" hidden>
+      <div class="ok-icon">✓</div>
+      <h3>Successfully Booked!</h3>
+      <p id="bookNowSuccessMsg">Your vehicle booking has been confirmed.</p>
+      <button type="button" class="modal-submit" id="bookNowDoneBtn" style="margin-top:16px">Done</button>
+    </div>
+  </div>
 </div>
 
 <div id="testRideModal" class="modal-overlay" aria-hidden="true">
@@ -1529,12 +1574,16 @@
     pushCategoryDataLayer(tabId);
   }
 
-  var bookToastTimer;
   var testRideModal = document.getElementById('testRideModal');
   var testRideForm = document.getElementById('testRideForm');
   var testRideFormView = document.getElementById('testRideFormView');
   var testRideSuccessView = document.getElementById('testRideSuccessView');
+  var bookNowModal = document.getElementById('bookNowModal');
+  var bookNowForm = document.getElementById('bookNowForm');
+  var bookNowFormView = document.getElementById('bookNowFormView');
+  var bookNowSuccessView = document.getElementById('bookNowSuccessView');
   var TVS_TEST_RIDE_DRAFT_KEY = "tvs_test_ride_draft";
+  var TVS_BOOK_NOW_DRAFT_KEY = "tvs_book_now_draft";
   var TVS_AUTH_KEY = "tvs_current_user";
   var TVS_USERS_KEY = "tvs_registered_users";
 
@@ -1712,6 +1761,127 @@
     closeTestRideModal();
   }
 
+  function clearBookNowStoredDetails() {
+    try {
+      localStorage.removeItem(TVS_BOOK_NOW_DRAFT_KEY);
+      localStorage.removeItem("tvs_confirmedBookedBike");
+      localStorage.removeItem("tvs_bookedPid");
+      localStorage.removeItem("tvs_lastBookedProduct");
+      sessionStorage.removeItem("tvs_book_now_clicked");
+      sessionStorage.removeItem("tvs_selected_vehicle");
+    } catch (e) { /* ignore */ }
+  }
+
+  function clearBookNowProfileCache() {
+    if (!window.TVS_USER_PROFILE) return;
+    [
+      "confirmedBookedBike", "bookedPid", "lastBookedProduct", "lastBookedAt",
+      "bookNowCustomerName", "bookNowPhone", "bookNowEmail", "bookNowCity",
+      "bookNowPincode", "bookNowPreferredDate", "bookNowNotes"
+    ].forEach(function (key) { delete window.TVS_USER_PROFILE[key]; });
+  }
+
+  function setBookNowCityValue(city) {
+    var sel = document.getElementById("bnCity");
+    if (!city || !sel) return;
+    var cityLower = String(city).trim().toLowerCase();
+    var matched = "";
+    Array.prototype.forEach.call(sel.options, function (opt) {
+      if (opt.value.toLowerCase() === cityLower || opt.text.toLowerCase() === cityLower) {
+        matched = opt.value;
+      }
+    });
+    sel.value = matched;
+  }
+
+  function saveBookNowDraft(data) {
+    try { localStorage.setItem(TVS_BOOK_NOW_DRAFT_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
+  }
+
+  function loadBookNowDraft() {
+    try { return JSON.parse(localStorage.getItem(TVS_BOOK_NOW_DRAFT_KEY) || "null"); } catch (e) { return null; }
+  }
+
+  function clearBookNowFormFields() {
+    document.getElementById("bnName").value = "";
+    document.getElementById("bnEmail").value = "";
+    document.getElementById("bnPhone").value = "";
+    document.getElementById("bnCity").value = "";
+    document.getElementById("bnDate").value = "";
+    document.getElementById("bnPincode").value = "";
+    document.getElementById("bnMessage").value = "";
+  }
+
+  function applyBookNowDraft(draft) {
+    if (!draft) return;
+    setFormField("bnName", draft.fullName);
+    setFormField("bnEmail", draft.email);
+    setFormField("bnPhone", draft.phone);
+    setBookNowCityValue(draft.city || "");
+    setFormField("bnPincode", draft.pincode);
+    setFormField("bnMessage", draft.message);
+  }
+
+  function applyLoggedInUserToBookNowForm(user) {
+    clearBookNowFormFields();
+    if (!user) return;
+    setFormField("bnName", user.name);
+    setFormField("bnEmail", user.email);
+    setFormField("bnPhone", user.phone);
+    setBookNowCityValue(user.city || "");
+  }
+
+  function resetBookNowCustomerForm() {
+    clearBookNowFormFields();
+    ["bnName", "bnEmail", "bnPhone", "bnPincode", "bnMessage"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.value = "";
+      if ("defaultValue" in el) el.defaultValue = "";
+      el.removeAttribute("readonly");
+    });
+    var cityEl = document.getElementById("bnCity");
+    if (cityEl) cityEl.value = "";
+  }
+
+  function populateBookNowCustomerFields() {
+    if (isUserLoggedIn()) {
+      clearBookNowStoredDetails();
+      clearBookNowProfileCache();
+      applyLoggedInUserToBookNowForm(getFullUserProfile());
+      bookNowForm.setAttribute("autocomplete", "off");
+      ["bnName", "bnEmail", "bnPhone", "bnPincode", "bnMessage"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute("autocomplete", "off");
+      });
+    } else {
+      bookNowForm.setAttribute("autocomplete", "off");
+      resetBookNowCustomerForm();
+      var draft = loadBookNowDraft();
+      if (draft) {
+        applyBookNowDraft(draft);
+      } else {
+        ["bnName", "bnEmail", "bnPhone", "bnPincode", "bnMessage"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.setAttribute("autocomplete", "nope");
+        });
+      }
+    }
+  }
+
+  function resetBookNowFormOnLogout() {
+    resetBookNowCustomerForm();
+    if (bookNowForm) bookNowForm.reset();
+    bookNowFormView.hidden = false;
+    bookNowSuccessView.hidden = true;
+    closeBookNowModal();
+  }
+
+  function resetAllBookingFormsOnLogout() {
+    resetTestRideFormOnLogout();
+    resetBookNowFormOnLogout();
+  }
+
   function getVehicleFromCard(card) {
     if (!card) return { pid: "", id: "", name: "TVS Vehicle", price: 0, priceDisplay: "" };
     if (card.dataset.product) {
@@ -1770,13 +1940,48 @@
     window.dataLayer.push(payload);
   }
 
-  function showBookSuccessToast(vehicleName) {
-    var toast = document.getElementById('bookSuccessToast');
-    document.getElementById('bookToastMsg').textContent =
-      vehicleName + ' has been successfully booked. Our team will reach out soon.';
-    toast.classList.add('show');
-    clearTimeout(bookToastTimer);
-    bookToastTimer = setTimeout(function () { toast.classList.remove('show'); }, 4500);
+  function openBookNowModal(product) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "booking_form_open",
+      MCP: {
+        pageType: "Booking",
+        confirmedBookedBike: product.name,
+        pid: product.pid || product.id || "",
+        currency: window.TVS_VEHICLE_CATALOG.currency,
+        Item: {
+          id: product.pid || product.id || "",
+          name: product.name,
+          price: product.price || 0,
+          category: product.category || "",
+          imageUrl: product.imageUrl || "",
+          specs: product.specs || {}
+        }
+      }
+    });
+    document.getElementById("bookNowVehicleLabel").textContent =
+      "Vehicle: " + product.name + (product.pid ? " (PID: " + product.pid + ")" : "");
+    document.getElementById("bookNowVehicleInput").value = product.name;
+    document.getElementById("bookNowPidInput").value = product.pid || product.id || "";
+    document.getElementById("bookNowProductJson").value = JSON.stringify(product);
+    bookNowFormView.hidden = false;
+    bookNowSuccessView.hidden = true;
+    bookNowForm.reset();
+    document.getElementById("bookNowVehicleInput").value = product.name;
+    document.getElementById("bookNowPidInput").value = product.pid || product.id || "";
+    document.getElementById("bookNowProductJson").value = JSON.stringify(product);
+    populateBookNowCustomerFields();
+    var today = new Date().toISOString().split("T")[0];
+    document.getElementById("bnDate").setAttribute("min", today);
+    bookNowModal.classList.add("open");
+    bookNowModal.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(function () { populateBookNowCustomerFields(); });
+    setTimeout(function () { populateBookNowCustomerFields(); }, 120);
+  }
+
+  function closeBookNowModal() {
+    bookNowModal.classList.remove("open");
+    bookNowModal.setAttribute("aria-hidden", "true");
   }
 
   function openTestRideModal(product) {
@@ -1831,24 +2036,7 @@
     var bookBtn = e.target.closest('.btn-book-now');
     if (bookBtn) {
       e.preventDefault();
-      var product = getVehicleFromCard(bookBtn.closest(".vehicle-card"));
-      window.setTVSUserBookedBike(product);
-      try {
-        sessionStorage.setItem("tvs_book_now_clicked", "1");
-        sessionStorage.setItem("tvs_selected_vehicle", JSON.stringify(product));
-      } catch (err) { /* private mode */ }
-      pushBookingEvent("vehicle_booked", product, {
-        bookingType: "Book Now",
-        confirmedBookedBike: product.name,
-        pid: product.pid || product.id,
-        user: {
-          attributes: {
-            confirmedBookedBike: product.name,
-            bookedPid: product.pid || product.id || ""
-          }
-        }
-      });
-      showBookSuccessToast(product.name);
+      openBookNowModal(getVehicleFromCard(bookBtn.closest(".vehicle-card")));
       return;
     }
     var testBtn = e.target.closest('.btn-test-ride');
@@ -1856,6 +2044,88 @@
       e.preventDefault();
       openTestRideModal(getVehicleFromCard(testBtn.closest('.vehicle-card')));
     }
+  });
+
+  document.getElementById('bookNowModalClose').addEventListener('click', closeBookNowModal);
+  document.getElementById('bookNowDoneBtn').addEventListener('click', closeBookNowModal);
+  bookNowModal.addEventListener('click', function (e) {
+    if (e.target === bookNowModal) closeBookNowModal();
+  });
+
+  bookNowForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!bookNowForm.checkValidity()) {
+      bookNowForm.reportValidity();
+      return;
+    }
+    var fd = new FormData(bookNowForm);
+    var product = {};
+    try { product = JSON.parse(fd.get("productJson") || "{}"); } catch (err) { product = {}; }
+    var payload = {
+      pid: fd.get("pid") || product.pid || "",
+      vehicle: fd.get("vehicle"),
+      product: product,
+      fullName: fd.get("fullName"),
+      email: fd.get("email"),
+      phone: fd.get("phone"),
+      city: fd.get("city"),
+      preferredDate: fd.get("preferredDate"),
+      pincode: fd.get("pincode") || "",
+      message: fd.get("message") || ""
+    };
+    window.TVS_BOOK_NOW_LEADS = window.TVS_BOOK_NOW_LEADS || [];
+    window.TVS_BOOK_NOW_LEADS.push(Object.assign({ submittedAt: new Date().toISOString() }, payload));
+    if (isUserLoggedIn()) {
+      clearBookNowStoredDetails();
+    } else {
+      saveBookNowDraft({
+        fullName: payload.fullName,
+        email: payload.email,
+        phone: payload.phone,
+        city: payload.city,
+        pincode: payload.pincode,
+        message: payload.message
+      });
+    }
+    try {
+      sessionStorage.setItem("tvs_book_now_clicked", "1");
+      sessionStorage.setItem("tvs_selected_vehicle", JSON.stringify(product));
+    } catch (err) { /* private mode */ }
+    window.setTVSUserBookedBike(product);
+    window.TVS_USER_PROFILE = window.TVS_USER_PROFILE || {};
+    window.TVS_USER_PROFILE.bookNowCustomerName = payload.fullName;
+    window.TVS_USER_PROFILE.bookNowPhone = payload.phone;
+    window.TVS_USER_PROFILE.bookNowEmail = payload.email;
+    window.TVS_USER_PROFILE.bookNowCity = payload.city;
+    window.TVS_USER_PROFILE.bookNowPincode = payload.pincode;
+    window.TVS_USER_PROFILE.bookNowPreferredDate = payload.preferredDate;
+    window.TVS_USER_PROFILE.bookNowNotes = payload.message;
+    pushBookingEvent("vehicle_booked", product.name ? product : { name: payload.vehicle, pid: payload.pid }, {
+      bookingType: "Book Now",
+      confirmedBookedBike: payload.vehicle,
+      pid: payload.pid,
+      user: {
+        identities: { emailAddress: payload.email },
+        attributes: {
+          confirmedBookedBike: payload.vehicle,
+          bookedPid: payload.pid,
+          bookNowCustomerName: payload.fullName,
+          bookNowPhone: payload.phone,
+          bookNowEmail: payload.email,
+          bookNowCity: payload.city,
+          bookNowPincode: payload.pincode,
+          bookNowPreferredDate: payload.preferredDate,
+          bookNowNotes: payload.message
+        }
+      }
+    });
+    document.getElementById("bookNowSuccessMsg").textContent =
+      "Your booking for " + payload.vehicle +
+      (payload.pid ? " (PID: " + payload.pid + ")" : "") +
+      " on " + payload.preferredDate +
+      " is confirmed. We will call you at " + payload.phone + ".";
+    bookNowFormView.hidden = true;
+    bookNowSuccessView.hidden = false;
   });
 
   document.getElementById('testRideModalClose').addEventListener('click', closeTestRideModal);
@@ -2063,6 +2333,8 @@
     setCurrentUser(session);
     clearTestRideStoredDetails();
     clearTestRideProfileCache();
+    clearBookNowStoredDetails();
+    clearBookNowProfileCache();
     pushAuthDataLayer("user_login", session);
     updateAuthUI();
     closeAuthModal();
@@ -2097,6 +2369,8 @@
     setCurrentUser(session);
     clearTestRideStoredDetails();
     clearTestRideProfileCache();
+    clearBookNowStoredDetails();
+    clearBookNowProfileCache();
     pushAuthDataLayer("user_signup", session);
     updateAuthUI();
     closeAuthModal();
@@ -2106,7 +2380,8 @@
   document.getElementById("logoutBtn").addEventListener("click", function () {
     clearCurrentUser();
     clearTestRideProfileCache();
-    resetTestRideFormOnLogout();
+    clearBookNowProfileCache();
+    resetAllBookingFormsOnLogout();
     updateAuthUI();
     var now = Date.now();
     if (!lastAuthDataLayerAt.user_logout || now - lastAuthDataLayerAt.user_logout >= 800) {
