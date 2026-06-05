@@ -251,6 +251,7 @@
   });
 </script>
 <script type="text/javascript" src="//cdn.evgnet.com/beacon/a556rq555550mxe43n3n3n091568480/tvs/scripts/evergage.min.js"></script>
+<script src="tvs-sitemap.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -1927,7 +1928,10 @@
     clearCurrentUser();
     updateAuthUI();
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: "user_logout", MCP: { pageType: "login", pageName: "Logged Out" } });
+    window.dataLayer.push({
+      event: "user_logout",
+      MCP: { pageType: "logout", pageName: "Logged Out" }
+    });
   });
 
   updateAuthUI();
